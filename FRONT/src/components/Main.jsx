@@ -6,7 +6,7 @@ function Main() {
 
   return (
     <div>
-        Coucou
+        Coucou c'est la page d'accueil
     </div>
     );
 }
