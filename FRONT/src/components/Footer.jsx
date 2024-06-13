@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
@@ -6,8 +7,8 @@ function Footer() {
       <div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
         <div className="md:flex md:justify-between">
           <div className="mb-6 md:mb-0">
-            <a href="https://flowbite.com/" className="flex items-center">
-              <img src="/public/images/fullDay.png" className="h-8 me-3" alt="FlowBite Logo" />
+            <a href="/" className="flex items-center">
+              <img src="/public/images/fullDay.png" className="w-20" alt="FlowBite Logo" />
 
             </a>
           </div>
@@ -16,7 +17,9 @@ function Footer() {
               <h2 className="mb-6 text-sm font-semibold  text-pcs-300 uppercase dark:text-white">Resources</h2>
               <ul className="text-white dark:text-gray-400 font-medium">
                 <li className="mb-4">
-                  <a href="https://flowbite.com/" className="hover:underline">Flowbite</a>
+                  <Link to="/contact" >
+                  <a href="/" className="hover:underline">Contact Us</a>
+                  </Link>
                 </li>
                 <li>
                   <a href="https://tailwindcss.com/" className="hover:underline">Tailwind CSS</a>
@@ -49,7 +52,7 @@ function Footer() {
         </div>
         <hr className="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
         <div className="sm:flex sm:items-center sm:justify-between">
-          <span className="text-sm text-white sm:text-center dark:text-gray-400">© 2023 <a href="https://flowbite.com/" className="hover:underline">Flowbite™</a>. All Rights Reserved.</span>
+          <span className="text-sm text-white sm:text-center dark:text-gray-400">© 2024 <a href="/" className="hover:underline">Footer by Hallya™</a>. All Rights Reserved.</span>
           <div className="flex mt-4 sm:justify-center sm:mt-0">
             <a href="#" className="text-white hover:text-gray-900 dark:hover:text-white">
               <svg className="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 8 19">
