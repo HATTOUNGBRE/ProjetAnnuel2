@@ -12,9 +12,11 @@
   "dependencies": {
     "flowbite": "^2.3.0",
     "flowbite-react": "^0.9.0",
+    "js-cookie": "^3.0.5",
     "lucide-react": "^0.372.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-modal": "^3.16.1",
     "react-router-dom": "^6.23.1"
   },
   "devDependencies": {
