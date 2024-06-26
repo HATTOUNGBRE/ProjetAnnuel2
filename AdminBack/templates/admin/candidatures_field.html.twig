@@ -1,0 +1,11 @@
+{# templates/admin/candidatures_field.html.twig #}
+
+{% for candidature in field.value %}
+    <div>
+        <p>{{ candidature.user.name }} {{ candidature.user.surname }}</p>
+        <form method="post" action="{{ path('validate_candidature', { 'id': candidature.id }) }}">
+            <input type="hidden" name="_method" value="PUT">
+            <button type="submit">Valider</button>
+        </form>
+    </div>
+{% endfor %}
