@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+
+.logo {
+  height: 5em;
+  width: 7em;
+  /* will-change: filter; */
+  transition: filter 300ms;
+}
+.logo:hover {
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+footer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column; /* Assurez-vous que cela prend toute la place entre l'en-tête et le pied de page */
+}
+
+footer {
+  flex-shrink: 0; /* Empêche le pied de page de rétrécir si le contenu est trop grand */
+}
+
+.main-content {
+  flex: 1;  
+  padding: 24px;  
+  overflow-y: auto; 
+  display: flex;
+  flex-direction: column;
+}
+

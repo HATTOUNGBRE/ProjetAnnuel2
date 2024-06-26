@@ -1,0 +1,19 @@
+# config/packages/easy_admin.yaml
+easy_admin:
+    entities:
+        Prestataire:
+            class: App\Entity\Prestataire
+            controller: App\Controller\Admin\PrestataireCrudController
+            list:
+                fields:
+                    - id
+                    - type
+                    - tarif
+                    - verified
+                    - { property: 'user', type: 'association', label: 'User' }
+            form:
+                fields:
+                    - type
+                    - tarif
+                    - verified
+                    - { property: 'user', type: 'association', label: 'User' }
