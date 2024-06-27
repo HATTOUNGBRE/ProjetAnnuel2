@@ -1,0 +1,12 @@
+{% extends '@EasyAdmin/crud/field/array.html.twig' %}
+
+{% block field %}
+    <ul>
+        {% for prestation in field.value %}
+            <li>
+                <strong>Type:</strong> {{ prestation.type }} <br>
+                <strong>Tarif:</strong> {{ prestation.tarif }} €
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
