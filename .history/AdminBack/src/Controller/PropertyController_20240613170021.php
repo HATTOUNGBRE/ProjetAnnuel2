@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Psr\Log\LoggerInterface;
 
-class ProductController extends AbstractController
+class PropertyController extends AbstractController
 {
     #[Route('/api/products/{userId}', name: 'user_products', methods: ['GET'])]
     public function getUserProducts(int $userId, ProductRepository $productRepository, SerializerInterface $serializer): JsonResponse
