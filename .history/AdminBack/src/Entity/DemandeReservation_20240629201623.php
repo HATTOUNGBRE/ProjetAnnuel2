@@ -55,7 +55,8 @@ class DemandeReservation
     #[Groups(['demande:read', 'demande:write'])]
     private ?float $totalPrice = null;
 
-    #[ORM\OneToMany(targetEntity: HistoriqueReservation::class, mappedBy: 'demandeReservation', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: HistoriqueReservation::class, mappedBy: 'demandeReservation')]
+    #[Groups(['demande:read', 'demande:write', 'historique:read'])]
     private $historiques;
 
 
@@ -208,13 +209,10 @@ class DemandeReservation
         $this->historiques = $historiques;
     }
 
-    public function addHistorique(HistoriqueReservation $historique): self
+    public function addHistorique(HistoriqueReservation $historique)
     {
-        if (!$this->historiques->contains($historique)) {
-            $this->historiques[] = $historique;
-            $historique->setDemandeReservation($this);
-        }
-
+        $this->historiques[] = $historique;
+        $historique->setDemandeReservation($this);
         return $this;
     }
 }

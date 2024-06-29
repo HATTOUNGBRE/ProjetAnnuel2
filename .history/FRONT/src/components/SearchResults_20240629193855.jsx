@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import PropertyDetails from './PropertyDetails';
+import PropertyDetails from './PropertyDetails'; // Assurez-vous d'importer votre composant PropertyDetails
 
 const SearchResults = ({ searchTerm }) => {
   const [properties, setProperties] = useState([]);
@@ -59,23 +59,14 @@ const SearchResults = ({ searchTerm }) => {
       <div className="flex flex-wrap">
         {properties.map(property => (
           <div key={property.id} className="bg-white shadow-lg rounded-lg overflow-hidden m-4 w-1/4">
-            {console.log('PRICE:', property.price)}
             <img src={`http://localhost:8000/uploads/property_photos/${property.image}`} alt={property.name} className="h-48 w-full object-cover" />
             <div className="p-4">
               <h3 className="text-xl font-semibold mb-2">{property.name}</h3>
               <p className="text-gray-600 mb-4">{property.description}</p>
               <p className="text-gray-600 mb-4">{property.commune}</p>
-              <p className="text-gray-600 mb-4">{property.price} €/jour</p>
               <div className="flex justify-between">
-                <button
-                  className="bg-pcs-250 hover:bg-pcs-200 text-white py-2 px-4 rounded-md"
-                  onClick={() => setSelectedProperty(property)}
-                >
-                  Détail +
-                </button>
-                <Link to={`/louer-un-logement?id=${property.id}`} target="_blank" className="bg-pcs-400 text-white py-2 px-4 rounded-md">
-                  Louer
-                </Link>
+              <button className="bg-pcs-250 hover:bg-pcs-200 text-white py-2 px-4 rounded-md" onClick={() => setSelectedProperty(property)}>Détail +</button>
+              <Link to={`/louer-un-logement?id=${property.id}`} target="_blank" className="bg-pcs-400 text-white py-2 px-4 rounded-md">Louer</Link>
               </div>
             </div>
           </div>

@@ -139,7 +139,7 @@ const VoyageurDashboard = () => {
                                     console.log(demande.dateArrivee),
                                     <li key={demande.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
                                         <h3 className="text-lg font-semibold">Propriété: {demande.property.name}</h3>
-                                        <p>Date d'arrivée: {new Date(demande.dateArrivee).toLocaleDateString()}</p>
+                                        <p>Date d'arrivée: {new Date(demande.dateArrivee).toLocaleDateString}</p>
                                         <p>Date de départ: {new Date(demande.dateDepart).toLocaleDateString()}</p>
                                         <p>Nombre de personnes: {demande.guestNb}</p>
                                         <p>Prix total: {demande.totalPrice} €</p>

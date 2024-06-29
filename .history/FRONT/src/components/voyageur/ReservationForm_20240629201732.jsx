@@ -90,7 +90,7 @@ const ReservationForm = () => {
       setSuccess('Reservation successfully created');
       setError('');
       console.log('Reservation created:', data);
-      navigate('/components/dashboard/voyageur');
+      navigate('components/dashboard/voyageur');
     } catch (error) {
       console.error('Error creating reservation:', error);
       setError('Failed to create reservation');

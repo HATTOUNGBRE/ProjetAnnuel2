@@ -59,7 +59,6 @@ const SearchResults = ({ searchTerm }) => {
       <div className="flex flex-wrap">
         {properties.map(property => (
           <div key={property.id} className="bg-white shadow-lg rounded-lg overflow-hidden m-4 w-1/4">
-            {console.log('PRICE:', property.price)}
             <img src={`http://localhost:8000/uploads/property_photos/${property.image}`} alt={property.name} className="h-48 w-full object-cover" />
             <div className="p-4">
               <h3 className="text-xl font-semibold mb-2">{property.name}</h3>
