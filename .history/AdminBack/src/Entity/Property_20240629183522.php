@@ -20,11 +20,11 @@ class Property
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['property:read', 'property:write', 'demande:read', 'historique:read'])]
+    #[Groups(['property:read', 'property:write'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['property:read', 'property:write', 'demande:read', 'historique:read'])]
+    #[Groups(['property:read', 'property:write'])]
     private ?string $description = null;
 
     #[ORM\Column]

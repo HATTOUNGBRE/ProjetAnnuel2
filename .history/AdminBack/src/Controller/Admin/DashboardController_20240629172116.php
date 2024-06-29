@@ -25,7 +25,6 @@ use App\Entity\CategoryUser;
 use App\Entity\Property;
 use App\Entity\User;
 use App\Entity\DemandeReservation;
-use App\Entity\HistoriqueReservation;
 
 class DashboardController extends AbstractDashboardController
 {
@@ -118,26 +117,12 @@ class DashboardController extends AbstractDashboardController
             MenuItem::linkToCrud('Show Demande Prestations', 'fas fa-eye', DemandePrestation::class)
         ]);
 
-        yield MenuItem::section('Demandes Reservations');
-        yield MenuItem::subMenu('Actions', 'fas fa-bars')->setSubItems([
-            MenuItem::linkToCrud('Create Demande Reservation', 'fas fa-plus', DemandeReservation::class)->setAction
-            (Crud::PAGE_NEW),
-            MenuItem::linkToCrud('Show Demande Reservations', 'fas fa-eye', DemandeReservation::class)
-        ]);
-
 
         yield MenuItem::section('Reservations Voyageurs');
         yield MenuItem::subMenu('Actions', 'fas fa-bars')->setSubItems([
             MenuItem::linkToCrud('Create Reservation Voyageur', 'fas fa-plus', ReservationVoyageur::class)->setAction
             (Crud::PAGE_NEW),
             MenuItem::linkToCrud('Show Reservation Voyageurs', 'fas fa-eye', ReservationVoyageur::class)
-        ]);
-
-        yield MenuItem::section('Historique Reservations');
-        yield MenuItem::subMenu('Actions', 'fas fa-bars')->setSubItems([
-            MenuItem::linkToCrud('Create Historique Reservation', 'fas fa-plus', HistoriqueReservation::class)->setAction
-            (Crud::PAGE_NEW),
-            MenuItem::linkToCrud('Show Historique Reservations', 'fas fa-eye', HistoriqueReservation::class)
         ]);
         // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
     }

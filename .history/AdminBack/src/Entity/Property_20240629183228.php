@@ -20,11 +20,11 @@ class Property
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['property:read', 'property:write', 'demande:read', 'historique:read'])]
+    #[Groups(['property:read', 'property:write'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['property:read', 'property:write', 'demande:read', 'historique:read'])]
+    #[Groups(['property:read', 'property:write'])]
     private ?string $description = null;
 
     #[ORM\Column]
@@ -55,23 +55,23 @@ class Property
     private ?User $proprio = null;
 
     #[ORM\Column]
-    #[Groups(['property:read', 'property:write' , 'demande:read', 'historique:read'])]
+    #[Groups(['property:read', 'property:write' , 'demande:read'])]
     private ?int $maxPersons = null;
 
     #[ORM\Column]
-    #[Groups(['property:read', 'property:write' , 'demande:read' , 'historique:read'])]
+    #[Groups(['property:read', 'property:write' , 'demande:read'])]
     private ?bool $hasPool = null;
 
     #[ORM\Column]
-    #[Groups(['property:read', 'property:write', 'demande:read' , 'historique:read'])]
+    #[Groups(['property:read', 'property:write', 'demande:read'])]
     private ?int $area = null;
 
     #[ORM\Column]
-    #[Groups(['property:read', 'property:write', 'demande:read' , 'historique:read'])]
+    #[Groups(['property:read', 'property:write', 'demande:read'])]
     private ?bool $hasBalcony = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['property:read', 'property:write', 'demande:read' , 'historique:read'])]
+    #[Groups(['property:read', 'property:write', 'demande:read'])]
     private ?string $commune = null;
 
     /**

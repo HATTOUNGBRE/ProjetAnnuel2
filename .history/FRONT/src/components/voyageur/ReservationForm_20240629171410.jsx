@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import AuthContext from '../AuthContext';
 import ReactModal from 'react-modal';
 
 const ReservationForm = () => {
   const { id } = useParams();
-  const { isLoggedIn, userRole, userId, userName, userSurname } = useContext(AuthContext);
+  const { isLoggedIn, userRole } = useContext(AuthContext);
   const [property, setProperty] = useState(null);
   const [dateArrivee, setDateArrivee] = useState('');
   const [dateDepart, setDateDepart] = useState('');
@@ -14,10 +14,7 @@ const ReservationForm = () => {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  const [totalPrice, setTotalPrice] = useState(0);
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -58,14 +55,8 @@ const ReservationForm = () => {
       return;
     }
 
-    const calculatedTotalPrice = property.price * (new Date(dateDepart) - new Date(dateArrivee)) / (1000 * 60 * 60 * 24);
-    setTotalPrice(calculatedTotalPrice);
-    setShowConfirmationModal(true);
-  };
-
-  const handleConfirmReservation = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/demandes`, {
+      const response = await fetch(`http://localhost:8000/api/reservations`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,11 +65,7 @@ const ReservationForm = () => {
           dateArrivee,
           dateDepart,
           guestNb,
-          property: property.id,
-          name: userName,
-          surname: userSurname,
-          voyageurId: userId,
-          totalPrice,
+          property: id,
         }),
       });
 
@@ -90,7 +77,6 @@ const ReservationForm = () => {
       setSuccess('Reservation successfully created');
       setError('');
       console.log('Reservation created:', data);
-      navigate('/dashboard');
     } catch (error) {
       console.error('Error creating reservation:', error);
       setError('Failed to create reservation');
@@ -161,19 +147,6 @@ const ReservationForm = () => {
           <div className="flex justify-around">
             <Link to="/login?voyageur" className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Se connecter</Link>
             <Link to="/components/inscription" className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">S'inscrire</Link>
-          </div>
-        </ReactModal>
-      )}
-      {showConfirmationModal && (
-        <ReactModal isOpen={showConfirmationModal} onRequestClose={() => setShowConfirmationModal(false)} className="Modal" overlayClassName="Overlay">
-          <h2 className="text-2xl font-semibold mb-4">Confirmer la réservation</h2>
-          <p className="mb-4">Date d'arrivée: {dateArrivee}</p>
-          <p className="mb-4">Date de départ: {dateDepart}</p>
-          <p className="mb-4">Nombre de personnes: {guestNb}</p>
-          <p className="mb-4">Prix total: {totalPrice} €</p>
-          <div className="flex justify-around">
-            <button onClick={handleConfirmReservation} className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Réserver</button>
-            <button onClick={() => setShowConfirmationModal(false)} className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Modifier</button>
           </div>
         </ReactModal>
       )}
