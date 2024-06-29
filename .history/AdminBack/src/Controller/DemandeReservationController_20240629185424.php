@@ -45,17 +45,9 @@ class DemandeReservationController extends AbstractController
             return new JsonResponse(['message' => 'Property not found'], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        $dateArrivee = new \DateTime($data['dateArrivee']);
-        $dateDepart = new \DateTime($data['dateDepart']);
-        if ($dateArrivee >= $dateDepart) {
-            return new JsonResponse(['message' => 'La date d\'arrivée doit être avant la date de départ'], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        $totalPrice = $property->getPrice() * $dateArrivee->diff($dateDepart)->days;
-
         $demande = new DemandeReservation();
-        $demande->setDateArrivee($dateArrivee);
-        $demande->setDateDepart($dateDepart);
+        $demande->setDateArrivee(new \DateTime($data['dateArrivee']));
+        $demande->setDateDepart(new \DateTime($data['dateDepart']));
         $demande->setGuestNb($data['guestNb']);
         $demande->setProperty($property);
         $demande->setStatus('En attente');
@@ -63,13 +55,12 @@ class DemandeReservationController extends AbstractController
         $demande->setName($data['name']);
         $demande->setSurname($data['surname']);
         $demande->setVoyageurId($data['voyageurId']);
-        $demande->setTotalPrice($totalPrice);
 
         $this->entityManager->persist($demande);
 
         $historique = new HistoriqueReservation();
-        $historique->setDateArrivee($dateArrivee);
-        $historique->setDateDepart($dateDepart);
+        $historique->setDateArrivee(new \DateTime($data['dateArrivee']));
+        $historique->setDateDepart(new \DateTime($data['dateDepart']));
         $historique->setGuestNb($data['guestNb']);
         $historique->setProperty($property);
         $historique->setStatus('En attente');
@@ -77,48 +68,12 @@ class DemandeReservationController extends AbstractController
         $historique->setName($data['name']);
         $historique->setSurname($data['surname']);
         $historique->setVoyageurId($data['voyageurId']);
-        $historique->setTotalPrice($totalPrice);
 
         $this->entityManager->persist($historique);
         $this->entityManager->flush();
 
         $responseData = $this->serializer->serialize($demande, 'json', ['groups' => 'demande:read']);
         return new JsonResponse($responseData, JsonResponse::HTTP_CREATED, [], true);
-    }
-
-    #[Route('/api/demandes/{id}', name: 'update_demande_reservation', methods: ['PUT'])]
-    public function updateDemandeReservation(int $id, Request $request, PropertyRepository $propertyRepository): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
-
-        if (!$data) {
-            return new JsonResponse(['message' => 'Invalid JSON'], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        $demande = $this->demandeRepository->find($id);
-        if (!$demande) {
-            return new JsonResponse(['message' => 'Demande not found'], JsonResponse::HTTP_NOT_FOUND);
-        }
-
-        $property = $demande->getProperty();
-        $dateArrivee = new \DateTime($data['dateArrivee']);
-        $dateDepart = new \DateTime($data['dateDepart']);
-        if ($dateArrivee >= $dateDepart) {
-            return new JsonResponse(['message' => 'La date d\'arrivée doit être avant la date de départ'], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        $totalPrice = $property->getPrice() * $dateArrivee->diff($dateDepart)->days;
-
-        $demande->setDateArrivee($dateArrivee);
-        $demande->setDateDepart($dateDepart);
-        $demande->setGuestNb($data['guestNb']);
-        $demande->setTotalPrice($totalPrice);
-        $demande->setUpdatedAt(new \DateTime());
-
-        $this->entityManager->flush();
-
-        $responseData = $this->serializer->serialize($demande, 'json', ['groups' => 'demande:read']);
-        return new JsonResponse($responseData, JsonResponse::HTTP_OK, [], true);
     }
 
     #[Route('/api/demandes/voyageur/{voyageurId}', name: 'get_demandes_voyageur', methods: ['GET'])]
@@ -137,6 +92,7 @@ class DemandeReservationController extends AbstractController
     public function cancelDemandeReservation(int $id): JsonResponse
     {
         $demande = $this->demandeRepository->find($id);
+
         if (!$demande) {
             return new JsonResponse(['message' => 'Demande not found'], JsonResponse::HTTP_NOT_FOUND);
         }
@@ -144,15 +100,53 @@ class DemandeReservationController extends AbstractController
         $demande->setStatus('Annulée');
         $this->entityManager->flush();
 
-        // Mettre à jour l'historique
-        $historique = $this->historiqueRepository->findOneBy(['voyageurId' => $demande->getVoyageurId(), 'property' => $demande->getProperty(), 'dateArrivee' => $demande->getDateArrivee(), 'dateDepart' => $demande->getDateDepart()]);
-        if ($historique) {
-            $historique->setStatus('Annulée');
-            $this->entityManager->flush();
-        }
+        // Mise à jour de l'historique
+        $historique = new HistoriqueReservation();
+        $historique->setDateArrivee($demande->getDateArrivee());
+        $historique->setDateDepart($demande->getDateDepart());
+        $historique->setGuestNb($demande->getGuestNb());
+        $historique->setProperty($demande->getProperty());
+        $historique->setStatus('Annulée');
+        $historique->setCreatedAt(new \DateTime());
+        $historique->setName($demande->getName());
+        $historique->setSurname($demande->getSurname());
+        $historique->setVoyageurId($demande->getVoyageurId());
+
+        $this->entityManager->persist($historique);
+        $this->entityManager->flush();
 
         return new JsonResponse(['message' => 'Demande annulée avec succès'], JsonResponse::HTTP_OK);
     }
 
-   
+    //modification de la demande
+    #[Route('/api/demandes/{id}/update', name: 'update_demande_reservation', methods: ['POST'])]
+    public function updateDemandeReservation(int $id, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data) {
+            return new JsonResponse(['message' => 'Invalid JSON'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $demande = $this->demandeRepository->find($id);
+        if (!$demande) {
+            return new JsonResponse(['message' => 'Demande not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $dateArrivee = new \DateTime($data['dateArrivee']);
+        $dateDepart = new \DateTime($data['dateDepart']);
+        if ($dateArrivee >= $dateDepart) {
+            return new JsonResponse(['message' => 'Date d\'arrivée doit être avant la date de départ'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $demande->setDateArrivee($dateArrivee);
+        $demande->setDateDepart($dateDepart);
+        $demande->setGuestNb($data['guestNb']);
+        $demande->setUpdatedAt(new \DateTime());
+
+        $this->entityManager->flush();
+
+        $responseData = $this->serializer->serialize($demande, 'json', ['groups' => 'demande:read']);
+        return new JsonResponse($responseData, JsonResponse::HTTP_OK, [], true);
+    }
 }

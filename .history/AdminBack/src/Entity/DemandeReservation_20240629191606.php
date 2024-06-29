@@ -50,7 +50,7 @@ class DemandeReservation
     #[Groups(['demande:read', 'demande:write'])]
     private ?int $voyageurId = null;
 
-
+    
     #[ORM\Column(type: Types::FLOAT)]
     #[Groups(['demande:read', 'demande:write'])]
     private ?float $totalPrice = null;
@@ -180,17 +180,6 @@ class DemandeReservation
     {
         $this->updatedAt = $updatedAt;
 
-        return $this;
-    }
-
-    public function getTotalPrice(): ?float
-    {
-        return $this->totalPrice;
-    }
-
-    public function setTotalPrice(float $totalPrice): static
-    {
-        $this->totalPrice = $totalPrice;
         return $this;
     }
 }
