@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import AuthContext from '../AuthContext';
 import ReactModal from 'react-modal';
 
@@ -14,10 +14,9 @@ const ReservationForm = () => {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -46,7 +45,7 @@ const ReservationForm = () => {
     fetchProperty();
   }, [id, location.search]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!isLoggedIn || userRole !== 'voyageur') {
       setShowModal(true);
@@ -58,12 +57,16 @@ const ReservationForm = () => {
       return;
     }
 
-    const calculatedTotalPrice = property.price * (new Date(dateDepart) - new Date(dateArrivee)) / (1000 * 60 * 60 * 24);
-    setTotalPrice(calculatedTotalPrice);
-    setShowConfirmationModal(true);
+    // Calculer le prix total
+    const days = (new Date(dateDepart) - new Date(dateArrivee)) / (1000 * 60 * 60 * 24);
+    const total = days * property.price;
+    setTotalPrice(total);
+
+    // Afficher la modal de confirmation
+    setShowConfirmModal(true);
   };
 
-  const handleConfirmReservation = async () => {
+  const confirmReservation = async () => {
     try {
       const response = await fetch(`http://localhost:8000/api/demandes`, {
         method: 'POST',
@@ -75,10 +78,9 @@ const ReservationForm = () => {
           dateDepart,
           guestNb,
           property: property.id,
-          name: userName,
-          surname: userSurname,
-          voyageurId: userId,
-          totalPrice,
+          name: userName, // Assuming you have userName in user context
+          surname: userSurname, // Assuming you have userSurname in user context
+          voyageurId: userId, // Assuming you have id in user context
         }),
       });
 
@@ -88,9 +90,9 @@ const ReservationForm = () => {
 
       const data = await response.json();
       setSuccess('Reservation successfully created');
-      setError('');
+      setShowConfirmModal(false);
       console.log('Reservation created:', data);
-      navigate('/dashboard');
+      setError('');
     } catch (error) {
       console.error('Error creating reservation:', error);
       setError('Failed to create reservation');
@@ -164,16 +166,16 @@ const ReservationForm = () => {
           </div>
         </ReactModal>
       )}
-      {showConfirmationModal && (
-        <ReactModal isOpen={showConfirmationModal} onRequestClose={() => setShowConfirmationModal(false)} className="Modal" overlayClassName="Overlay">
+      {showConfirmModal && (
+        <ReactModal isOpen={showConfirmModal} onRequestClose={() => setShowConfirmModal(false)} className="Modal" overlayClassName="Overlay">
           <h2 className="text-2xl font-semibold mb-4">Confirmer la réservation</h2>
-          <p className="mb-4">Date d'arrivée: {dateArrivee}</p>
-          <p className="mb-4">Date de départ: {dateDepart}</p>
+          <p className="mb-4">Date d'arrivée: {new Date(dateArrivee).toLocaleDateString()}</p>
+          <p className="mb-4">Date de départ: {new Date(dateDepart).toLocaleDateString()}</p>
           <p className="mb-4">Nombre de personnes: {guestNb}</p>
           <p className="mb-4">Prix total: {totalPrice} €</p>
           <div className="flex justify-around">
-            <button onClick={handleConfirmReservation} className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Réserver</button>
-            <button onClick={() => setShowConfirmationModal(false)} className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Modifier</button>
+            <button onClick={confirmReservation} className="bg-green-500 text-white py-2 px-4 rounded-lg">Réserver</button>
+            <button onClick={() => setShowConfirmModal(false)} className="bg-gray-500 text-white py-2 px-4 rounded-lg">Modifier</button>
           </div>
         </ReactModal>
       )}

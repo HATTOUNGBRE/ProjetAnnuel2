@@ -138,11 +138,8 @@ const VoyageurDashboard = () => {
                                 {demandes.map((demande) => (
                                     <li key={demande.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
                                         <h3 className="text-lg font-semibold">Propriété: {demande.property.name}</h3>
-                                        <p>Date d'arrivée: {new Date(demande.dateArrivee).toLocaleDateString}</p>
+                                        <p>Date d'arrivée: {demande.dateArrivee}</p>
                                         <p>Date de départ: {new Date(demande.dateDepart).toLocaleDateString()}</p>
-                                        <p>Nombre de personnes: {demande.guestNb}</p>
-                                        <p>Prix total: {demande.totalPrice} €</p>
-                                        
                                         <p>Statut: {demande.status}</p>
                                         <button onClick={() => handleEditClick(demande)} className="bg-blue-500 text-white py-1 px-3 rounded mt-2">Modifier</button>
                                         <button onClick={() => handleCancelClick(demande.id)} className="bg-red-500 text-white py-1 px-3 rounded mt-2 ml-2">Annuler</button>
