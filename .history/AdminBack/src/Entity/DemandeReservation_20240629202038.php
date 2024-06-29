@@ -56,6 +56,7 @@ class DemandeReservation
     private ?float $totalPrice = null;
 
     #[ORM\OneToMany(targetEntity: HistoriqueReservation::class, mappedBy: 'demandeReservation', cascade: ['persist', 'remove'])]
+    #[Groups(['demande:read', 'demande:write', 'historique:read'])]
     private $historiques;
 
 

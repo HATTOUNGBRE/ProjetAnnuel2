@@ -53,13 +53,15 @@ const SearchResults = ({ searchTerm }) => {
   }
 
   console.log('Rendering properties:', properties);
+  console.log('PRICE:', property.price),
+
   return (
     <div className="mt-10 w-full">
       <h2 className="text-2xl font-semibold text-pcs-400 mb-6">Résultats de la Recherche</h2>
       <div className="flex flex-wrap">
         {properties.map(property => (
+        
           <div key={property.id} className="bg-white shadow-lg rounded-lg overflow-hidden m-4 w-1/4">
-            {console.log('PRICE:', property.price)}
             <img src={`http://localhost:8000/uploads/property_photos/${property.image}`} alt={property.name} className="h-48 w-full object-cover" />
             <div className="p-4">
               <h3 className="text-xl font-semibold mb-2">{property.name}</h3>

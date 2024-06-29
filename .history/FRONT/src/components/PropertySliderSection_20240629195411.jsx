@@ -3,7 +3,7 @@ import Slider from 'react-slick';
 
 const PropertySliderSection = ({ title, sliderSettings }) => {
   return (
-    <div className="mt-10 w-full mb-6">
+    <div className="mt-10 w-full mb-4">
       <h2 className="text-2xl font-semibold text-pcs-400 mb-6">{title}</h2>
       <Slider {...sliderSettings}>
         {[1, 2, 3, 4, 5].map(item => (
