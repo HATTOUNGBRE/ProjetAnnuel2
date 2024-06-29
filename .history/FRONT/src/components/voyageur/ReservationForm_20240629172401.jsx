@@ -5,7 +5,7 @@ import ReactModal from 'react-modal';
 
 const ReservationForm = () => {
   const { id } = useParams();
-  const { isLoggedIn, userRole, userId, userName, userSurname } = useContext(AuthContext);
+  const { isLoggedIn, userRole } = useContext(AuthContext);
   const [property, setProperty] = useState(null);
   const [dateArrivee, setDateArrivee] = useState('');
   const [dateDepart, setDateDepart] = useState('');
@@ -65,26 +65,21 @@ const ReservationForm = () => {
           dateArrivee,
           dateDepart,
           guestNb,
-          property: property.id,
-          name: userName, // Assuming you have userName in user context
-          surname:userSurname, // Assuming you have userSurname in user context
-          voyageurId: userId, // Assuming you have id in user context
+          property: id,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create reservation');
+        throw new Error('Failed to create reservation request');
       }
 
       const data = await response.json();
-      setSuccess('Reservation successfully created');
-      console.log('Reservation created:', data);
+      setSuccess('Demande de réservation créée avec succès');
       setError('');
-      console.log('Reservation created:', data);
+      console.log('Reservation request created:', data);
     } catch (error) {
-      console.error('Error creating reservation:', error);
-      console.log('Reservation created:', data);
-      setError('Failed to create reservation');
+      console.error('Error creating reservation request:', error);
+      setError('Failed to create reservation request');
       setSuccess('');
     }
   };

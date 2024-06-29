@@ -69,8 +69,7 @@ const VoyageurDashboard = () => {
                             <p className="text-gray-600">Aucune demande de réservation en cours.</p>
                         ) : (
                             <ul>
-                                {demandes.map((demande) => (
-                                    console.log(demande),
+                               {demandes.map((demande) => (
                                     <li key={demande.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
                                         <h3 className="text-lg font-semibold">Propriété: {demande.property.name}</h3>
                                         <p>Date d'arrivée: {new Date(demande.dateArrivee).toLocaleDateString()}</p>
@@ -92,7 +91,7 @@ const VoyageurDashboard = () => {
                             <ul>
                                 {historique.map((historique) => (
                                     <li key={historique.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
-                                        <h3 className="text-lg font-semibold">Propriété: {historique.property.name}</h3>
+                                        <h3 className="text-lg font-semibold">Propriété: {historique.name}</h3>
                                         <p>Date d'arrivée: {new Date(historique.dateArrivee).toLocaleDateString()}</p>
                                         <p>Date de départ: {new Date(historique.dateDepart).toLocaleDateString()}</p>
                                         <p>Statut: {historique.status}</p>
