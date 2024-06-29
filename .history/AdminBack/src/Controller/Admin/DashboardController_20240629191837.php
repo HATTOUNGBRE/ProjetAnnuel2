@@ -132,13 +132,6 @@ class DashboardController extends AbstractDashboardController
             (Crud::PAGE_NEW),
             MenuItem::linkToCrud('Show Reservation Voyageurs', 'fas fa-eye', ReservationVoyageur::class)
         ]);
-
-        yield MenuItem::section('Historique Reservations');
-        yield MenuItem::subMenu('Actions', 'fas fa-bars')->setSubItems([
-            MenuItem::linkToCrud('Create Historique Reservation', 'fas fa-plus', HistoriqueReservation::class)->setAction
-            (Crud::PAGE_NEW),
-            MenuItem::linkToCrud('Show Historique Reservations', 'fas fa-eye', HistoriqueReservation::class)
-        ]);
         // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
     }
 

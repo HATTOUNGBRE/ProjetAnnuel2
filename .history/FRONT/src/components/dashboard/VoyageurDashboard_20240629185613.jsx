@@ -4,23 +4,24 @@ import AuthContext from '../AuthContext';
 import ReactModal from 'react-modal';
 
 const VoyageurDashboard = () => {
-    const { userId, userName, userSurname } = useContext(AuthContext);
+    const { userId } = useContext(AuthContext);
     const [demandes, setDemandes] = useState([]);
     const [historique, setHistorique] = useState([]);
-    const [showModal, setShowModal] = useState(false);
-    const [selectedDemande, setSelectedDemande] = useState(null);
-    const [dateArrivee, setDateArrivee] = useState('');
-    const [dateDepart, setDateDepart] = useState('');
-    const [guestNb, setGuestNb] = useState(1);
-    const [totalPrice, setTotalPrice] = useState(0);
-    const [error, setError] = useState('');
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [demandeToCancel, setDemandeToCancel] = useState(null);
+    const [demandeToEdit, setDemandeToEdit] = useState(null);
+    const [editDateArrivee, setEditDateArrivee] = useState('');
+    const [editDateDepart, setEditDateDepart] = useState('');
+    const [editGuestNb, setEditGuestNb] = useState(1);
+    const [editError, setEditError] = useState('');
 
     useEffect(() => {
         const fetchDemandes = async () => {
             try {
                 const response = await fetch(`http://localhost:8000/api/demandes/voyageur/${userId}`);
                 const data = await response.json();
-                setDemandes(data.filter(demande => demande.status !== 'Annulée'));
+                setDemandes(data);
             } catch (error) {
                 console.error('Error fetching demandes:', error);
             }
@@ -40,61 +41,69 @@ const VoyageurDashboard = () => {
         fetchHistorique();
     }, [userId]);
 
-    const handleEditClick = (demande) => {
-        setSelectedDemande(demande);
-        setDateArrivee(demande.dateArrivee.split('T')[0]);
-        setDateDepart(demande.dateDepart.split('T')[0]);
-        setGuestNb(demande.guestNb);
-        setTotalPrice(demande.totalPrice);
-        setShowModal(true);
+    const handleCancel = (demande) => {
+        setDemandeToCancel(demande);
+        setShowCancelModal(true);
     };
 
-    const handleUpdate = async () => {
-        if (new Date(dateArrivee) >= new Date(dateDepart)) {
-            setError('La date d\'arrivée doit être avant la date de départ');
+    const confirmCancel = async () => {
+        if (demandeToCancel) {
+            try {
+                const response = await fetch(`http://localhost:8000/api/demandes/${demandeToCancel.id}/cancel`, {
+                    method: 'POST',
+                });
+                if (response.ok) {
+                    setDemandes(demandes.filter(d => d.id !== demandeToCancel.id));
+                    setHistorique([...historique, { ...demandeToCancel, status: 'Annulée' }]);
+                }
+            } catch (error) {
+                console.error('Error cancelling demande:', error);
+            } finally {
+                setShowCancelModal(false);
+                setDemandeToCancel(null);
+            }
+        }
+    };
+
+    const handleEdit = (demande) => {
+        setDemandeToEdit(demande);
+        setEditDateArrivee(demande.dateArrivee);
+        setEditDateDepart(demande.dateDepart);
+        setEditGuestNb(demande.guestNb);
+        setShowEditModal(true);
+    };
+
+    const confirmEdit = async () => {
+        if (new Date(editDateArrivee) >= new Date(editDateDepart)) {
+            setEditError('La date d\'arrivée doit être avant la date de départ');
             return;
         }
 
-        const updatedTotalPrice = selectedDemande.property.price * (new Date(dateDepart) - new Date(dateArrivee)) / (1000 * 60 * 60 * 24);
-
         try {
-            const response = await fetch(`http://localhost:8000/api/demandes/${selectedDemande.id}`, {
-                method: 'PUT',
+            const response = await fetch(`http://localhost:8000/api/demandes/${demandeToEdit.id}/update`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    dateArrivee,
-                    dateDepart,
-                    guestNb,
-                    totalPrice: updatedTotalPrice,
+                    dateArrivee: editDateArrivee,
+                    dateDepart: editDateDepart,
+                    guestNb: editGuestNb,
                 }),
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to update reservation');
+            if (response.ok) {
+                const updatedDemande = await response.json();
+                setDemandes(demandes.map(d => d.id === demandeToEdit.id ? updatedDemande : d));
+                setShowEditModal(false);
+                setDemandeToEdit(null);
+                setEditError('');
+            } else {
+                setEditError('Failed to update demande');
             }
-
-            const data = await response.json();
-            setDemandes(demandes.map(dem => (dem.id === selectedDemande.id ? data : dem)));
-            setShowModal(false);
         } catch (error) {
-            console.error('Error updating reservation:', error);
-            setError('Failed to update reservation');
-        }
-    };
-
-    const handleCancelClick = async (demandeId) => {
-        if (window.confirm('Are you sure you want to cancel this reservation?')) {
-            try {
-                await fetch(`http://localhost:8000/api/demandes/${demandeId}/cancel`, {
-                    method: 'PUT',
-                });
-                setDemandes(demandes.filter(dem => dem.id !== demandeId));
-                setHistorique(historique.map(hist => (hist.id === demandeId ? { ...hist, status: 'Annulée' } : hist)));
-            } catch (error) {
-                console.error('Error cancelling reservation:', error);
-            }
+            console.error('Error updating demande:', error);
+            setEditError('Failed to update demande');
         }
     };
 
@@ -138,14 +147,12 @@ const VoyageurDashboard = () => {
                                 {demandes.map((demande) => (
                                     <li key={demande.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
                                         <h3 className="text-lg font-semibold">Propriété: {demande.property.name}</h3>
-                                        <p>Date d'arrivée: {new Date(demande.dateArrivee).toLocaleDateString}</p>
+                                        <p>Date d'arrivée: {new Date(demande.dateArrivee).toLocaleDateString()}</p>
                                         <p>Date de départ: {new Date(demande.dateDepart).toLocaleDateString()}</p>
                                         <p>Nombre de personnes: {demande.guestNb}</p>
-                                        <p>Prix total: {demande.totalPrice} €</p>
-                                        
                                         <p>Statut: {demande.status}</p>
-                                        <button onClick={() => handleEditClick(demande)} className="bg-blue-500 text-white py-1 px-3 rounded mt-2">Modifier</button>
-                                        <button onClick={() => handleCancelClick(demande.id)} className="bg-red-500 text-white py-1 px-3 rounded mt-2 ml-2">Annuler</button>
+                                        <button onClick={() => handleEdit(demande)} className="bg-blue-500 text-white py-1 px-3 rounded-md">Modifier</button>
+                                        <button onClick={() => handleCancel(demande)} className="bg-red-500 text-white py-1 px-3 rounded-md ml-2">Annuler</button>
                                     </li>
                                 ))}
                             </ul>
@@ -166,7 +173,6 @@ const VoyageurDashboard = () => {
                                         <p>Date d'arrivée: {new Date(historique.dateArrivee).toLocaleDateString()}</p>
                                         <p>Date de départ: {new Date(historique.dateDepart).toLocaleDateString()}</p>
                                         <p>Statut: {historique.status}</p>
-                                        <p>Prix total: {historique.totalPrice} €</p>
                                     </li>
                                 ))}
                             </ul>
@@ -175,28 +181,43 @@ const VoyageurDashboard = () => {
                 </div>
             </div>
 
-            {showModal && (
-                <ReactModal isOpen={showModal} onRequestClose={() => setShowModal(false)} className="Modal" overlayClassName="Overlay">
-                    <h2 className="text-2xl font-semibold mb-4">Modifier la réservation</h2>
+            {/* Cancel Confirmation Modal */}
+            <ReactModal isOpen={showCancelModal} onRequestClose={() => setShowCancelModal(false)} className="Modal" overlayClassName="Overlay">
+                <h2 className="text-2xl font-semibold mb-4">Confirmation d'annulation</h2>
+                <p className="mb-4">Êtes-vous sûr de vouloir annuler cette demande de réservation ?</p>
+                <div className="flex justify-around">
+                    <button onClick={confirmCancel} className="bg-red-500 text-white py-2 px-4 rounded-lg">Oui, annuler</button>
+                    <button onClick={() => setShowCancelModal(false)} className="bg-gray-500 text-white py-2 px-4 rounded-lg">Non, revenir</button>
+                </div>
+            </ReactModal>
+
+            {/* Edit Modal */}
+            <ReactModal isOpen={showEditModal} onRequestClose={() => setShowEditModal(false)} className="Modal" overlayClassName="Overlay">
+                <h2 className="text-2xl font-semibold mb-4">Modifier la demande de réservation</h2>
+                <div className="mb-4">
                     <label className="block text-gray-700 font-bold mb-2">
                         Date d'arrivée:
-                        <input type="date" value={dateArrivee} onChange={(e) => setDateArrivee(e.target.value)} required className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <input type="date" value={editDateArrivee} onChange={(e) => setEditDateArrivee(e.target.value)} required className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     </label>
+                </div>
+                <div className="mb-4">
                     <label className="block text-gray-700 font-bold mb-2">
                         Date de départ:
-                        <input type="date" value={dateDepart} onChange={(e) => setDateDepart(e.target.value)} required className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <input type="date" value={editDateDepart} onChange={(e) => setEditDateDepart(e.target.value)} required className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     </label>
+                </div>
+                <div className="mb-4">
                     <label className="block text-gray-700 font-bold mb-2">
                         Nombre de personnes:
-                        <input type="number" value={guestNb} onChange={(e) => setGuestNb(e.target.value)} required min="1" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <input type="number" value={editGuestNb} onChange={(e) => setEditGuestNb(e.target.value)} required min="1" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     </label>
-                    {error && <div className="text-red-500">{error}</div>}
-                    <div className="flex justify-around mt-4">
-                        <button onClick={handleUpdate} className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Modifier</button>
-                        <button onClick={() => setShowModal(false)} className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Annuler</button>
-                    </div>
-                </ReactModal>
-            )}
+                </div>
+                {editError && <div className="text-red-500">{editError}</div>}
+                <div className="flex justify-around">
+                    <button onClick={confirmEdit} className="bg-blue-500 text-white py-2 px-4 rounded-lg">Enregistrer</button>
+                    <button onClick={() => setShowEditModal(false)} className="bg-gray-500 text-white py-2 px-4 rounded-lg">Annuler</button>
+                </div>
+            </ReactModal>
         </div>
     );
 };
