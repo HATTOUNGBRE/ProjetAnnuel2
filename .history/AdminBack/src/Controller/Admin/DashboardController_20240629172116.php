@@ -117,13 +117,6 @@ class DashboardController extends AbstractDashboardController
             MenuItem::linkToCrud('Show Demande Prestations', 'fas fa-eye', DemandePrestation::class)
         ]);
 
-        yield MenuItem::section('Demandes Reservations');
-        yield MenuItem::subMenu('Actions', 'fas fa-bars')->setSubItems([
-            MenuItem::linkToCrud('Create Demande Reservation', 'fas fa-plus', DemandeReservation::class)->setAction
-            (Crud::PAGE_NEW),
-            MenuItem::linkToCrud('Show Demande Reservations', 'fas fa-eye', DemandeReservation::class)
-        ]);
-
 
         yield MenuItem::section('Reservations Voyageurs');
         yield MenuItem::subMenu('Actions', 'fas fa-bars')->setSubItems([

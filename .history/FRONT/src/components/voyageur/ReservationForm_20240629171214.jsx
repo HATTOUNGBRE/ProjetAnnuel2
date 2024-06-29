@@ -5,7 +5,7 @@ import ReactModal from 'react-modal';
 
 const ReservationForm = () => {
   const { id } = useParams();
-  const { isLoggedIn, userRole, userId, userName, userSurname } = useContext(AuthContext);
+  const { isLoggedIn, userRole } = useContext(AuthContext);
   const [property, setProperty] = useState(null);
   const [dateArrivee, setDateArrivee] = useState('');
   const [dateDepart, setDateDepart] = useState('');
@@ -56,7 +56,7 @@ const ReservationForm = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/demandes`, {
+      const response = await fetch(`http://localhost:8000/api/reservations`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,10 +65,7 @@ const ReservationForm = () => {
           dateArrivee,
           dateDepart,
           guestNb,
-          property: property.id,
-          name: userName, // Assuming you have userName in user context
-          surname:userSurname, // Assuming you have userSurname in user context
-          voyageurId: userId, // Assuming you have id in user context
+          property: id,
         }),
       });
 
@@ -78,12 +75,10 @@ const ReservationForm = () => {
 
       const data = await response.json();
       setSuccess('Reservation successfully created');
-      console.log('Reservation created:', data);
       setError('');
       console.log('Reservation created:', data);
     } catch (error) {
       console.error('Error creating reservation:', error);
-      console.log('Reservation created:', data);
       setError('Failed to create reservation');
       setSuccess('');
     }
@@ -151,7 +146,7 @@ const ReservationForm = () => {
           <p className="mb-4">Vous devez être connecté en tant que voyageur pour effectuer une réservation.</p>
           <div className="flex justify-around">
             <Link to="/login?voyageur" className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Se connecter</Link>
-            <Link to="/components/inscription" className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">S'inscrire</Link>
+            <Link to="/signup?role=voyageur" className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">S'inscrire</Link>
           </div>
         </ReactModal>
       )}
