@@ -1,0 +1,26 @@
+# config/packages/easy_admin.yaml
+easy_admin:
+    entities:
+      
+        Property:
+            class: App\Entity\Property
+            list:
+                fields:
+                    - { property: 'id', label: 'ID' }
+                    - { property: 'name', label: 'Name' }
+                    - { property: 'description', label: 'Description' }
+                    - { property: 'price', label: 'Price' }
+                    - { property: 'category', label: 'Category' }
+                    - { property: 'proprio', label: 'Owner' }
+                    - { property: 'createdAt', label: 'Created At' }
+                    - { property: 'image', label: 'Image', template: '@EasyAdmin/default/field_image.html.twig', base_path: '/uploads/property_photos' }
+            form:
+                fields:
+                    - { property: 'name', label: 'Name' }
+                    - { property: 'description', label: 'Description' }
+                    - { property: 'price', label: 'Price' }
+                    - { property: 'category', label: 'Category' }
+                    - { property: 'proprio', label: 'Owner' }
+                    - { property: 'image', label: 'Image', type: 'vich_image' }
+                    - { property: 'createdAt', label: 'Created At' }
+
