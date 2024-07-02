@@ -5,8 +5,6 @@ namespace App\Entity;
 use App\Repository\ReservationVoyageurRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
-
 
 #[ORM\Entity(repositoryClass: ReservationVoyageurRepository::class)]
 class ReservationVoyageur
@@ -26,36 +24,8 @@ class ReservationVoyageur
     #[ORM\JoinColumn(nullable: false)]
     private ?Property $property = null;
 
-
-
     #[ORM\Column]
     private ?int $guestNb = null;
-
-    #[ORM\Column(length: 10, unique: true)]
-    #[Groups(['historique:read', 'historique:write', 'demande:read', 'demande:write', 'property:read', 'property:write'])]
-    private ?string $reservationNumber = null;
-
-
-    #[ORM\Column]
-    #[Groups(['demande:read', 'demande:write'])]
-    private ?int $voyageurId = null;
-
-
-    #[ORM\Column(type: Types::FLOAT)]
-    #[Groups(['demande:read', 'demande:write'])]
-    private ?float $totalPrice = null;
-
-    // Add a getter and setter for reservationNumber
-    public function getReservationNumber(): ?string
-    {
-        return $this->reservationNumber;
-    }
-
-    public function setReservationNumber(string $reservationNumber): self
-    {
-        $this->reservationNumber = $reservationNumber;
-        return $this;
-    }
 
     public function getId(): ?int
     {
