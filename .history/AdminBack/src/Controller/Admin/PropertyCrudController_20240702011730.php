@@ -36,7 +36,7 @@ class PropertyCrudController extends AbstractCrudController
         return [
             TextField::new('name'),
             TextareaField::new('description'),
-            NumberField::new('price', 'Price (€)/ by day'),
+            NumberField::new('price', 'Price (€)'),
             NumberField::new('maxPersons'),
             BooleanField::new('hasPool'),
             NumberField::new('area'),

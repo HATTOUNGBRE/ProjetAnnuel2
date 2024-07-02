@@ -56,8 +56,6 @@ public function createDemandeReservation(Request $request, PropertyRepository $p
     $demande->setName($data['name']);
     $demande->setSurname($data['surname']);
     $demande->setVoyageurId($data['voyageurId']);
-    $demande->setReservationNumber(ReservationNumberGenerator::generate());
-    $demande->setActive(false);
     $demande->setTotalPrice($property->getPrice() * $demande->getDateArrivee()->diff($demande->getDateDepart())->days);
 
     $historique = new HistoriqueReservation();
@@ -72,7 +70,6 @@ public function createDemandeReservation(Request $request, PropertyRepository $p
     $historique->setVoyageurId($data['voyageurId']);
     $historique->setTotalPrice($demande->getTotalPrice());
     $historique->setDemandeReservation($demande);
-    $historique->setReservationNumber($demande->getReservationNumber());
 
     $this->entityManager->persist($demande);
     $this->entityManager->persist($historique);

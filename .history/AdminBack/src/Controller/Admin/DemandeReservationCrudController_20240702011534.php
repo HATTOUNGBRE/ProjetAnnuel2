@@ -24,7 +24,6 @@ class DemandeReservationCrudController extends AbstractCrudController
     {
         return [
             IntegerField::new('id')->hideOnForm(),
-            TextField::new('reservationNumber', 'Numéro de réservation'),
             DateField::new('dateArrivee'),
             DateField::new('dateDepart'),
             IntegerField::new('guestNb'),
@@ -34,8 +33,8 @@ class DemandeReservationCrudController extends AbstractCrudController
             TextField::new('surname')->hideOnForm(),
             IntegerField::new('voyageurId')->hideOnForm(),
             MoneyField::new('totalPrice')->setCurrency('EUR')->setStoredAsCents(false),
-            DateTimeField::new('createdAt')->hideOnIndex(),
-            DateTimeField::new('updatedAt')->hideOnIndex(),
+            DateTimeField::new('createdAt')->hideOnForm(),
+            DateTimeField::new('updatedAt')->hideOnForm(),
             BooleanField::new('active'),
         ];
     }
