@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "70f4954260530a7d58ae17cf76f3e449",
+    "content-hash": "d09a570f512787dec0a39f3440322422",
     "packages": [
         {
             "name": "composer/semver",
@@ -3855,6 +3855,71 @@
             "time": "2024-05-31T14:55:39+00:00"
         },
         {
+            "name": "symfony/google-mailer",
+            "version": "v7.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/google-mailer.git",
+                "reference": "1a87e35e84bd265bbb0ea09ca020162c3e8e689c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/google-mailer/zipball/1a87e35e84bd265bbb0ea09ca020162c3e8e689c",
+                "reference": "1a87e35e84bd265bbb0ea09ca020162c3e8e689c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "symfony/mailer": "^6.4|^7.0"
+            },
+            "require-dev": {
+                "symfony/http-client": "^6.4|^7.0"
+            },
+            "type": "symfony-mailer-bridge",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Mailer\\Bridge\\Google\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Google Mailer Bridge",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/google-mailer/tree/v7.0.8"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-05-31T14:55:39+00:00"
+        },
+        {
             "name": "symfony/http-client",
             "version": "v7.0.8",
             "source": {
@@ -4299,16 +4364,16 @@
         },
         {
             "name": "symfony/mailer",
-            "version": "v7.0.8",
+            "version": "v7.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mailer.git",
-                "reference": "644c2b5ddd778666298d73c1a8c0949f74ef6649"
+                "reference": "6cf146bc806c6ce8999a91072c1841004c0ecc86"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/mailer/zipball/644c2b5ddd778666298d73c1a8c0949f74ef6649",
-                "reference": "644c2b5ddd778666298d73c1a8c0949f74ef6649",
+                "url": "https://api.github.com/repos/symfony/mailer/zipball/6cf146bc806c6ce8999a91072c1841004c0ecc86",
+                "reference": "6cf146bc806c6ce8999a91072c1841004c0ecc86",
                 "shasum": ""
             },
             "require": {
@@ -4359,7 +4424,7 @@
             "description": "Helps sending emails",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/mailer/tree/v7.0.8"
+                "source": "https://github.com/symfony/mailer/tree/v7.0.9"
             },
             "funding": [
                 {
@@ -4375,7 +4440,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-05-31T14:55:39+00:00"
+            "time": "2024-06-28T07:59:17+00:00"
         },
         {
             "name": "symfony/messenger",
@@ -4465,16 +4530,16 @@
         },
         {
             "name": "symfony/mime",
-            "version": "v7.0.8",
+            "version": "v7.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mime.git",
-                "reference": "3426d1e95f432c82ceef57e9943383116800f406"
+                "reference": "60757ea7d562ae1756c1f430a6f7872156a15f32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/mime/zipball/3426d1e95f432c82ceef57e9943383116800f406",
-                "reference": "3426d1e95f432c82ceef57e9943383116800f406",
+                "url": "https://api.github.com/repos/symfony/mime/zipball/60757ea7d562ae1756c1f430a6f7872156a15f32",
+                "reference": "60757ea7d562ae1756c1f430a6f7872156a15f32",
                 "shasum": ""
             },
             "require": {
@@ -4487,7 +4552,7 @@
                 "phpdocumentor/reflection-docblock": "<3.2.2",
                 "phpdocumentor/type-resolver": "<1.4.0",
                 "symfony/mailer": "<6.4",
-                "symfony/serializer": "<6.4"
+                "symfony/serializer": "<6.4.3|>7.0,<7.0.3"
             },
             "require-dev": {
                 "egulias/email-validator": "^2.1.10|^3.1|^4",
@@ -4497,7 +4562,7 @@
                 "symfony/process": "^6.4|^7.0",
                 "symfony/property-access": "^6.4|^7.0",
                 "symfony/property-info": "^6.4|^7.0",
-                "symfony/serializer": "^6.4|^7.0"
+                "symfony/serializer": "^6.4.3|^7.0.3"
             },
             "type": "library",
             "autoload": {
@@ -4529,7 +4594,7 @@
                 "mime-type"
             ],
             "support": {
-                "source": "https://github.com/symfony/mime/tree/v7.0.8"
+                "source": "https://github.com/symfony/mime/tree/v7.0.9"
             },
             "funding": [
                 {
@@ -4545,7 +4610,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-06-02T15:49:03+00:00"
+            "time": "2024-06-28T09:58:46+00:00"
         },
         {
             "name": "symfony/monolog-bridge",
