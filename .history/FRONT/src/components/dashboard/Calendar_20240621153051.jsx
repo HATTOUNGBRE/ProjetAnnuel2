@@ -1,31 +1,51 @@
-import React from 'react';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
+import React, { useEffect, useState } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import timeGridPlugin from '@fullcalendar/timegrid';
 
-const localizer = momentLocalizer(moment);
+const Calendar = ({ property }) => {
+    const [events, setEvents] = useState([]);
 
-const events = [
-  {
-    title: 'My Event',
-    start: new Date(),
-    end: new Date(moment().add(1, "days"))
-  }
-];
+    useEffect(() => {
+        const fetchReservations = async () => {
+            try {
+                const response = await fetch(`http://localhost:8000/api/properties/${property.id}/reservations`);
+                const data = await response.json();
+                console.log('Fetched reservations:', data); // Log fetched data
 
-const Calendrier = () => {
-  return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Disponibilité du Prestataire</h2>
-      <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: 300 }}
-      />
-    </div>
-  );
+                const reservations = data.map(reservation => ({
+                    title: `Réservation - ${reservation.guestNb} personnes`,
+                    start: reservation.dateArrivee,
+                    end: reservation.dateDepart,
+                    color: 'gray', // Use gray color to indicate the reservation period
+                    textColor: 'white'
+                }));
+
+                console.log('Transformed events:', reservations); // Log transformed events
+                setEvents(reservations);
+            } catch (error) {
+                console.error('Error fetching reservations:', error);
+            }
+        };
+
+        if (property) {
+            fetchReservations();
+        }
+    }, [property]);
+
+    return (
+        <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            events={events}
+            headerToolbar={{
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            }}
+        />
+    );
 };
 
-export default Calendrier;
+export default Calendar;
