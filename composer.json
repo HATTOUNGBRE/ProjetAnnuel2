@@ -1,0 +1,7 @@
+{
+    "require": {
+        "symfony/mailer": "^7.1",
+        "symfony/event-dispatcher": "^7.1",
+        "symfony/mime": "^7.1"
+    }
+}
