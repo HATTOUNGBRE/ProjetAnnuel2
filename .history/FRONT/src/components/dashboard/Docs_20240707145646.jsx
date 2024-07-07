@@ -61,15 +61,6 @@ const Docs = () => {
         </Document>
     );
 
-    const getFileName = () => {
-        const today = new Date();
-        const dd = String(today.getDate()).padStart(2, '0');
-        const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
-        const yyyy = today.getFullYear();
-
-        return `facture_du_${dd}-${mm}-${yyyy}.pdf`;
-    };
-
     return (
         <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
             <h1 className="text-2xl font-semibold text-pcs-400 mb-4">Documents et Factures</h1>
@@ -108,7 +99,7 @@ const Docs = () => {
                 </tbody>
             </table>
             <div className="mt-4">
-                <PDFDownloadLink document={<PaymentDocument payments={payments} />} fileName={getFileName()}>
+                <PDFDownloadLink document={<PaymentDocument payments={payments} />} fileName="payments.pdf">
                     {({ loading }) => (
                         <button className="bg-pcs-300 text-white py-2 text-center px-4 rounded-lg hover:bg-pcs-400">
                             {loading ? 'Loading document...' : 'Download PDF'}
