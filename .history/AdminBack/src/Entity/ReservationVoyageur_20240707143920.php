@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use App\Utils\ReservationNumberGenerator;
 
 #[ORM\Entity(repositoryClass: ReservationVoyageurRepository::class)]
 class ReservationVoyageur
@@ -54,11 +53,9 @@ class ReservationVoyageur
     public function __construct()
     {
         $this->payments = new ArrayCollection();
-        $this->reservationNumber = ReservationNumberGenerator::generate();
     }
 
-    // Getters and setters...
-
+    // Add a getter and setter for reservationNumber
     public function getReservationNumber(): ?string
     {
         return $this->reservationNumber;

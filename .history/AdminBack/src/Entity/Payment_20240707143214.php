@@ -11,42 +11,35 @@ class Payment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
-    #[Groups(['payment:read', 'payment:write'])]
     private ?int $id = null;
 
     #[ORM\Column(type: "datetime")]
-    #[Groups(['payment:read', 'payment:write'])]
-    private ?\DateTimeInterface $date = null;
+    #[Groups(['payment:read, payment:write', ])]    private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(type: "decimal", scale: 2)]
-    #[Groups(['payment:read', 'payment:write'])]
+
     private ?float $amount = null;
 
     #[ORM\Column(type: "string", length: 255)]
-    #[Groups(['payment:read', 'payment:write'])]
+    #[Groups(['payment:read, payment:write', ])]
     private ?string $method = null;
 
     #[ORM\ManyToOne(targetEntity: ReservationVoyageur::class, inversedBy: "payments")]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['payment:read', 'payment:write'])]
+    #[Groups(['payment:read, payment:write', ])]
     private ?ReservationVoyageur $reservation = null;
 
     #[ORM\Column(type: "string", length: 255)]
-    #[Groups(['payment:read', 'payment:write'])]
+    #[Groups(['payment:read', ])]
     private ?string $cardLast4 = null;
 
     #[ORM\Column(type: "string", length: 255)]
-    #[Groups(['payment:read', 'payment:write'])]
+    #[Groups(['payment:read', ])]
     private ?string $firstName = null;
 
     #[ORM\Column(type: "string", length: 255)]
-    #[Groups(['payment:read', 'payment:write'])]
+    #[Groups(['payment:read', ])]
     private ?string $lastName = null;
-
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['payment:read', 'payment:write'])]
-    private ?User $proprietor = null;
 
     // Getters and Setters
 
@@ -129,17 +122,6 @@ class Payment
     public function setLastName(string $lastName): self
     {
         $this->lastName = $lastName;
-        return $this;
-    }
-
-    public function getProprietor(): ?User
-    {
-        return $this->proprietor;
-    }
-
-    public function setProprietor(User $proprietor): self
-    {
-        $this->proprietor = $proprietor;
         return $this;
     }
 }
