@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Utils\ReservationNumberGenerator;
 
+
 #[ORM\Entity(repositoryClass: ReservationVoyageurRepository::class)]
 class ReservationVoyageur
 {

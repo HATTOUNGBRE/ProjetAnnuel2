@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use App\Utils\ReservationNumberGenerator;
+use App\Utils\Utils\ReservationNumberGenerator;
 
 #[ORM\Entity(repositoryClass: ReservationVoyageurRepository::class)]
 class ReservationVoyageur

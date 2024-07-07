@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
-use App\Utils\Utils\ReservationNumberGenerator;
+use App\Utils\ReservationNumberGenerator;
 
 class DemandeReservationController extends AbstractController
 {
@@ -183,26 +183,28 @@ class DemandeReservationController extends AbstractController
         $reservation->setVoyageurId($demande->getVoyageurId());
         $reservation->setTotalPrice($demande->getTotalPrice());
 
+        $this->entityManager->persist($reservation);
+
         // Créer une nouvelle disponibilité pour cette réservation
         $availability = new Availability();
         $availability->setProperty($demande->getProperty());
         $availability->setStartDate($demande->getDateArrivee());
         $availability->setEndDate($demande->getDateDepart());
 
-        // Créer un paiement pour la réservation
+        $this->entityManager->persist($availability);
+
+        // Créer le paiement
         $payment = new Payment();
         $payment->setDate(new \DateTime());
         $payment->setAmount($demande->getTotalPrice());
-        $payment->setMethod('credit_card'); // Utilisez la méthode de paiement appropriée
+        $payment->setMethod('credit_card'); // Remplacez par la méthode réelle
         $payment->setReservation($reservation);
-        $payment->setCardLast4('1234'); // Ajoutez les 4 derniers chiffres de la carte réelle
         $payment->setFirstName($demande->getName());
         $payment->setLastName($demande->getSurname());
-        $payment->setProprietor($demande->getProperty()->getProprio()); // Définit le propriétaire
+        $payment->setCardLast4(substr($data['cardNumber'], -4)); // Assurez-vous que le numéro de carte est inclus dans $data
 
-        $this->entityManager->persist($reservation);
-        $this->entityManager->persist($availability);
         $this->entityManager->persist($payment);
+
         $this->entityManager->flush();
 
         // Mettre à jour l'historique
@@ -217,7 +219,7 @@ class DemandeReservationController extends AbstractController
             $this->entityManager->flush();
         }
 
-        return new JsonResponse(['message' => 'Demande acceptée, réservation et paiement créés avec succès'], JsonResponse::HTTP_OK);
+        return new JsonResponse(['message' => 'Demande acceptée et réservation créée avec succès'], JsonResponse::HTTP_OK);
     }
 
     #[Route('/api/demandes/active', name: 'get_active_demandes', methods: ['POST'])]
