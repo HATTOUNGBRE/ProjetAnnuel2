@@ -44,7 +44,7 @@ class ReservationVoyageur
     private ?int $voyageurId = null;
 
     #[ORM\Column(type: Types::FLOAT)]
-    #[Groups(['demande:read', 'demande:write', 'reservation:read', 'reservation:write', 'payment:read'])]
+    #[Groups(['demande:read', 'demande:write'])]
     private ?float $totalPrice = null;
 
     #[ORM\OneToMany(mappedBy: 'reservation', targetEntity: Payment::class, cascade: ['persist', 'remove'])]
