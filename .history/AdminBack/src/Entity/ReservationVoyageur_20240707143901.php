@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use App\Utils\ReservationNumberGenerator;
 
 #[ORM\Entity(repositoryClass: ReservationVoyageurRepository::class)]
 class ReservationVoyageur
@@ -45,7 +44,7 @@ class ReservationVoyageur
     private ?int $voyageurId = null;
 
     #[ORM\Column(type: Types::FLOAT)]
-    #[Groups(['demande:read', 'demande:write', 'reservation:read', 'reservation:write', 'payment:read'])]
+    #[Groups(['demande:read', 'demande:write'])]
     private ?float $totalPrice = null;
 
     #[ORM\OneToMany(mappedBy: 'reservation', targetEntity: Payment::class, cascade: ['persist', 'remove'])]
@@ -54,11 +53,9 @@ class ReservationVoyageur
     public function __construct()
     {
         $this->payments = new ArrayCollection();
-        $this->reservationNumber = ReservationNumberGenerator::generate();
     }
 
-    // Getters and setters...
-
+    // Add a getter and setter for reservationNumber
     public function getReservationNumber(): ?string
     {
         return $this->reservationNumber;

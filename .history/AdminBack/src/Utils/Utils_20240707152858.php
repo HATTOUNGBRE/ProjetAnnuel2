@@ -1,4 +1,5 @@
 <?php
+// src/Utils/ReservationNumberGenerator.php
 
 namespace App\Utils;
 
