@@ -39,7 +39,7 @@ const Account = ({ userId }) => {
         password: '',
         categoryUser: data.category_user,
         imageProfile: data.image_profile,
-        isVerified: data.is_verified,
+        isVerified: data.isVerified,
       });
       console.log('User fetched:', data);
     } catch (error) {
@@ -178,7 +178,7 @@ const Account = ({ userId }) => {
                 </tr>
                 <tr>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Vérifié</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.is_verified ? 'Oui' : 'Non'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.isVerified ? 'Oui' : 'Non'}</td>
                 </tr>
               </tbody>
             </table>

@@ -72,7 +72,7 @@ const Docs = () => {
                         <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Nom</th>
                         <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Carte</th>
                         <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Numéro de Réservation</th>
-                        <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Location de l'appartement</th>
+                        <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Propriété</th>
                         <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Date d'arrivée</th>
                         <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Date de départ</th>
                         <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Nombre de personnes</th>

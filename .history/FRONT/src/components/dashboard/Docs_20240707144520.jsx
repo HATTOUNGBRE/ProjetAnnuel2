@@ -72,7 +72,6 @@ const Docs = () => {
                         <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Nom</th>
                         <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Carte</th>
                         <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Numéro de Réservation</th>
-                        <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Location de l'appartement</th>
                         <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Date d'arrivée</th>
                         <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Date de départ</th>
                         <th className="py-2 px-4 bg-gray-200 text-gray-600 font-bold">Nombre de personnes</th>
@@ -88,7 +87,7 @@ const Docs = () => {
                             <td className="py-2 px-4">{payment.firstName} {payment.lastName}</td>
                             <td className="py-2 px-4">{payment.cardLast4}</td>
                             <td className="py-2 px-4">{payment.reservation.reservationNumber}</td>
-                            <td className="py-2 px-4">{payment.reservation.property.name}</td>
+                            <td className="py-2 px-4">{new Date(payment.reservation.property.name)}</td>
                             <td className="py-2 px-4">{new Date(payment.reservation.dateArrivee).toLocaleDateString()}</td>
                             <td className="py-2 px-4">{new Date(payment.reservation.dateDepart).toLocaleDateString()}</td>
                             <td className="py-2 px-4">{payment.reservation.guestNb}</td>
