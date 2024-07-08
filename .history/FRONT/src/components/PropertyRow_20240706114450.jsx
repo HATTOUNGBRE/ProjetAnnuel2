@@ -1,0 +1,44 @@
+import React, { useState } from 'react';
+import Slider from 'react-slick';
+import PropertyDetails from './PropertyDetails';
+import { Link } from 'react-router-dom';
+
+const PropertyRow = ({ properties = [], sliderSettings }) => {
+  const [selectedProperty, setSelectedProperty] = useState(null);
+
+  return (
+    <div className="mt-10 w-full">
+      {selectedProperty && (
+        <PropertyDetails
+          property={selectedProperty}
+          onClose={() => setSelectedProperty(null)}
+        />
+      )}
+      <Slider {...sliderSettings}>
+        {properties.map(property => (
+          <div key={property.id} className="p-4">
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <img src={`http://localhost:8000/uploads/property_photos/${property.image}`} alt={property.name} className="h-48 w-full object-cover" />
+              <div className="p-4">
+                <h3 className="text-xl font-semibold mb-2">{property.name}</h3>
+                <p className="text-gray-600 mb-4">{property.description}</p>
+                <p className="text-gray-600 mb-4">{property.commune}</p>
+                <p className="text-gray-600 mb-4">Nb de prs max: {property.maxPersons}</p>
+                <p className="text-gray-600 mb-4">{property.price} €/jour</p>
+                <div className="flex justify-between">
+                <button className="bg-pcs-250 hover:bg-pcs-200 text-white py-2 px-4 rounded-md" onClick={() => setSelectedProperty(property)}>Détail +</button>
+
+                  <Link to={`/louer-un-logement?id=${property.id}`} className="bg-pcs-400 text-white py-2 px-4 rounded-md">
+                    Louer
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </Slider>
+    </div>
+  );
+};
+
+export default PropertyRow;
