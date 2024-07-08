@@ -1,0 +1,49 @@
+<?php
+// src/Controller/ContactController.php
+
+namespace App\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Routing\Annotation\Route;
+use Psr\Log\LoggerInterface;
+
+class ContactController extends AbstractController
+{
+    #[Route('/api/contact', name: 'contact', methods: ['POST'])]
+    public function contact(Request $request, MailerInterface $mailer, LoggerInterface $logger): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data) {
+            return new JsonResponse(['message' => 'Invalid JSON'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $logger->info('Preparing email to send', ['email' => $data['email'], 'message' => $data['message']]);
+
+        $userEmail = (new Email())
+            ->from('noreply@yourdomain.com')
+            ->to($data['email'])
+            ->subject('Confirmation de votre demande')
+            ->text("Nous avons bien reçu votre demande : \"{$data['message']}\". Notre équipe y répondra bientôt.");
+
+        $mailer->send($userEmail);
+
+        $logger->info('Email sent to user', ['email' => $data['email']]);
+
+        // Envoi de l'email à l'équipe support
+        $supportEmail = (new Email())
+            ->from('noreply@yourdomain.com')
+            ->to('hello.teampcs@outlook.com')
+            ->subject('Nouvelle demande de contact')
+            ->text("Vous avez reçu une nouvelle demande de contact.\n\nNom: {$data['name']}\nPrénom: {$data['surname']}\nEmail: {$data['email']}\nRôle: {$data['role']}\nQuestion: {$data['question']}\nMessage: {$data['message']}");
+
+        $mailer->send($supportEmail);
+
+        $logger->info('Email sent to support', ['email' => 'hello.teampcs@outlook.com']);
+
+        return new JsonResponse(['message' => 'Emails sent successfully'], JsonResponse::HTTP_CREATED);
+    }
+}
