@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reservation{% endblock %}
+
+{% block body %}
+    <h1>Reservation</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ reservation.id }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ reservation.titre }}</td>
+            </tr>
+            <tr>
+                <th>DateDeCreation</th>
+                <td>{{ reservation.dateDeCreation ? reservation.dateDeCreation|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DateDEffet</th>
+                <td>{{ reservation.dateDEffet ? reservation.dateDEffet|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DateDeFin</th>
+                <td>{{ reservation.dateDeFin ? reservation.dateDeFin|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Statut</th>
+                <td>{{ reservation.statut }}</td>
+            </tr>
+            <tr>
+                <th>Active</th>
+                <td>{{ reservation.active ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_reservation_crud_index') }}">back to list</a>
+
+    <a href="{{ path('app_reservation_crud_edit', {'id': reservation.id}) }}">edit</a>
+
+    {{ include('reservation_crud/_delete_form.html.twig') }}
+{% endblock %}
