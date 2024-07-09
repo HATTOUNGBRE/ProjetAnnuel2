@@ -26,6 +26,7 @@ import PaymentPage from "./components/voyageur/PaymentPage";
 import Docs from "./components/dashboard/Docs";
 import ChatbotBubble from "./components/ChatbotBubble";
 import AboutUs from "./components/AboutUs";
+import StripeCheckoutForm from "./components/voyageur/StripeCheckoutForm";
 
 
 const ProtectedRoute = ({ element, allowedRole }) => {

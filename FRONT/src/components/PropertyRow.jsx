@@ -18,7 +18,11 @@ const PropertyRow = ({ properties = [], sliderSettings }) => {
         {properties.map(property => (
           <div key={property.id} className="p-4">
             <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-              <img src={`http://localhost:8000/uploads/property_photos/${property.image}`} alt={property.name} className="h-48 w-full object-cover" />
+            <img 
+  src={`http://localhost:8000/uploads/property_photos/${property.image ? property.image : 'default_appart.jpg'}`} 
+  alt={property.name} 
+  className="h-48 w-full object-cover" 
+/>
               <div className="p-4">
                 <h3 className="text-xl font-semibold mb-2">{property.name}</h3>
                 <p className="text-gray-600 mb-4">{property.description}</p>

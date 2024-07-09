@@ -1,56 +1,91 @@
+// src/components/PaymentPage.jsx
+
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { useNavigate } from 'react-router-dom';
 
 const PaymentPage = () => {
   const stripe = useStripe();
   const elements = useElements();
   const location = useLocation();
-  const { totalPrice } = location.state;
+  const navigate = useNavigate();
+  const { dateArrivee, dateDepart, guestNb, propertyId, name, surname, voyageurId, totalPrice } = location.state;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!stripe || !elements) {
-      return;
+        return;
     }
 
     const cardElement = elements.getElement(CardElement);
 
     const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
-      card: cardElement,
+        type: 'card',
+        card: cardElement,
     });
 
     if (error) {
-      console.error(error);
+        console.error(error);
     } else {
-      console.log('PaymentMethod:', paymentMethod);
-      // Envoyez `paymentMethod.id` au backend pour effectuer le paiement
-      try {
-        const response = await fetch('http://localhost:8000/api/pay', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            amount: totalPrice * 100, // Montant en centimes
-            paymentMethodId: paymentMethod.id,
-          }),
-        });
+        console.log('PaymentMethod:', paymentMethod);
+        try {
+            // Step 1: Create a payment intent with Stripe
+            const response = await fetch('http://localhost:8000/api/pay', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount: totalPrice * 100, // Montant en centimes
+                    paymentMethodId: paymentMethod.id,
+                    cardLast4: paymentMethod.card.last4,
+                    firstName: name,
+                    lastName: surname,
+                    reservationId: voyageurId,
+                    method: 'credit_card',
+                }),
+            });
 
-        const data = await response.json();
-        if (data.success) {
-          alert('Payment successful!');
-        } else {
-          alert('Payment failed. Please try again.');
+            const data = await response.json();
+
+            if (data.success) {
+                // Step 2: Save payment in database
+                const savePaymentResponse = await fetch('http://localhost:8000/api/payments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        amount: totalPrice * 100, // Montant en centimes
+                        method: 'credit_card',
+                        reservationId: 2, // Utilisez l'ID de la réservation approprié
+                        cardLast4: paymentMethod.card.last4,
+                        firstName: name,
+                        lastName: surname,
+                       
+                    }),
+                });
+
+                const savePaymentData = await savePaymentResponse.json();
+                if (savePaymentResponse.ok) {
+                    alert('Payment successful and saved in the database!');
+                    navigate('/payment-success'); // Redirigez vers une page de succès si nécessaire
+                } else {
+                    console.error('Error saving payment:', savePaymentData);
+                    alert('Payment succeeded but failed to save in the database. Please contact support.');
+                }
+            } else {
+                alert('Payment failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Payment failed. Please try again.');
         }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Payment failed. Please try again.');
-      }
     }
-  };
+};
+
 
   return (
     <div className="container mx-auto p-10">

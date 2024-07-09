@@ -8,6 +8,8 @@ use App\Entity\Category;
 use App\Entity\User;
 use App\Repository\PropertyRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\ReservationVoyageurRepository;
+use App\Repository\DemandeReservationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -279,10 +281,23 @@ class PropertyController extends AbstractController
     }
 
     #[Route('/api/properties/{id}/reservations', name: 'get_property_reservations', methods: ['GET'])]
-    public function getPropertyReservations(int $id, ReservationVoyageurRepository $reservationRepository): JsonResponse
+    public function getPropertyReservations(int $id, ReservationVoyageurRepository $reservationRepository, DemandeReservationRepository $demandeRepository): JsonResponse
     {
         $reservations = $reservationRepository->findBy(['property' => $id]);
 
-        return $this->json($reservations, 200, [], ['groups' => 'reservation:read']);
+        $response = [];
+        foreach ($reservations as $reservation) {
+            $demande = $demandeRepository->findOneBy(['reservationNumber' => $reservation->getReservationNumber()]);
+            $response[] = [
+                'dateArrivee' => $reservation->getDateArrivee()->format('Y-m-d'),
+                'dateDepart' => $reservation->getDateDepart()->format('Y-m-d'),
+                'guestNb' => $reservation->getGuestNb(),
+                'status' => $demande ? $demande->getStatus() : 'Unknown',
+                'voyageurName' => $reservation->getVoyageurName(),
+                'voyageurSurname' => $reservation->getVoyageurSurname(),
+            ];
+        }
+
+        return new JsonResponse($response);
     }
 }

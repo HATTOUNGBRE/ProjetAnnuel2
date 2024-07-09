@@ -1,6 +1,7 @@
+# config/packages/nelmio_cors.yaml
 nelmio_cors:
     defaults:
-        allow_origin: ['http://localhost:5173']
+        allow_origin: ['http://localhost:5173', 'http://164.132.48.30:8000']
         allow_credentials: true
         allow_headers: ['content-type', 'authorization']
         allow_methods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']
@@ -8,7 +9,7 @@ nelmio_cors:
         max_age: 3600
     paths:
         '^/api/':
-            allow_origin: ['http://localhost:5173']
+            allow_origin: ['http://localhost:5173', 'http://164.132.48.30:8000']
             allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'DELETE']
             allow_headers: ['Content-Type', 'Authorization']
             allow_credentials: true
