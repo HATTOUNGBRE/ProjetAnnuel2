@@ -189,16 +189,19 @@ const Account = ({ userId }) => {
             </div>
           </div>
           <div className="col-span-1 flex justify-center items-center">
-            {user.image_profile ? (
-              <img
-                src={user.image_profile}
-                alt="Profile"
-                className="w-32 h-32 rounded-full"
-              />
-            ) : (
-              <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-500">No Image</span>
-              </div>
+  {user.image_profile ? (
+    <img
+      src={`./uploads/property_photos/${user.image_profile}`}
+      alt="Profile"
+      className="w-32 h-32 rounded-full"
+    />
+  ) : (
+    <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center">
+      <span className="text-gray-500">No Image</span>
+    </div>
+
+
+
             )}
           </div>
         </div>

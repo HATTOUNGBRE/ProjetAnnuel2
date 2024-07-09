@@ -8,13 +8,49 @@ const ChatbotBubble = () => {
 
     const toggleChat = () => {
         setIsOpen(!isOpen);
+        if (!isOpen) {
+            startConversation();
+        }
     };
 
-    const handleSendMessage = () => {
-        if (input.trim()) {
-            setMessages([...messages, { text: input, isUser: true }]);
+    const handleSendMessage = (message) => {
+        if (message.trim()) {
+            setMessages([...messages, { text: message, isUser: true }]);
+            handleBotResponse(message);
             setInput('');
         }
+    };
+
+    const handleBotResponse = (input) => {
+        const lowerInput = input.toLowerCase();
+        let response = '';
+        let options = [];
+
+        if (lowerInput.includes('bonjour') || lowerInput.includes('salut')) {
+            response = 'Bonjour ! Comment puis-je vous aider aujourd\'hui ?';
+            options = ['Ajouter une propriété', 'Voir les propriétés', 'S\'inscrire'];
+        } else if (lowerInput.includes('propriété')) {
+            response = 'Souhaitez-vous ajouter ou voir des propriétés ?';
+            options = ['Ajouter une propriété', 'Voir les propriétés'];
+        } else if (lowerInput.includes('ajouter une propriété')) {
+            response = 'Vous pouvez ajouter une propriété en allant sur la page Ajouter une propriété.';
+            window.location.href = '/add-property'; // Ajustez le chemin selon vos besoins
+        } else if (lowerInput.includes('voir les propriétés')) {
+            response = 'Vous pouvez voir les propriétés en allant sur la page Propriétés.';
+            window.location.href = '/properties'; // Ajustez le chemin selon vos besoins
+        } else if (lowerInput.includes('s\'inscrire')) {
+            response = 'Vous pouvez vous inscrire en allant sur la page Inscription.';
+            window.location.href = '/register'; // Ajustez le chemin selon vos besoins
+        } else {
+            response = 'Désolé, je n\'ai pas compris. Pouvez-vous reformuler ?';
+            options = ['Ajouter une propriété', 'Voir les propriétés', 'S\'inscrire'];
+        }
+
+        setMessages(prevMessages => [...prevMessages, { text: response, isUser: false, options }]);
+    };
+
+    const startConversation = () => {
+        handleBotResponse('bonjour');
     };
 
     return (
@@ -31,6 +67,19 @@ const ChatbotBubble = () => {
                                 {messages.map((message, index) => (
                                     <div key={index} className={`my-2 p-2 rounded-lg ${message.isUser ? 'bg-gray-200 text-right' : 'bg-gray-300 text-left'}`}>
                                         {message.text}
+                                        {message.options && (
+                                            <div className="mt-2 flex flex-wrap">
+                                                {message.options.map((option, i) => (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => handleSendMessage(option)}
+                                                        className="bg-blue-500 text-white py-1 px-2 rounded-lg m-1"
+                                                    >
+                                                        {option}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -40,10 +89,11 @@ const ChatbotBubble = () => {
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     className="flex-1 p-2 border rounded-l-lg focus:outline-none"
-                                    placeholder="Type a message..."
+                                    placeholder="Tapez un message..."
+                                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(input)}
                                 />
-                                <button onClick={handleSendMessage} className="bg-gray-800 text-white p-2 rounded-r-lg">
-                                    Send
+                                <button onClick={() => handleSendMessage(input)} className="bg-gray-800 text-white p-2 rounded-r-lg">
+                                    Envoyer
                                 </button>
                             </div>
                         </div>

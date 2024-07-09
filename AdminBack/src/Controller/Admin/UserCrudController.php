@@ -22,7 +22,7 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class UserCrudController extends AbstractCrudController
 {
-    public const PROFILE_BASE_PATH = 'uploads/image/profiles';
+    public const PROFILE_BASE_PATH = "uploads/profile_photos";
     public const PROFILE_UPLOAD_DIR = 'public/uploads/image/profiles';
 
     private $entityManager;

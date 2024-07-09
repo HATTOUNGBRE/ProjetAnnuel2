@@ -98,6 +98,8 @@ class Property
     {
         $this->reservationVoyageurs = new ArrayCollection();
         $this->availabilities = new ArrayCollection();
+        $this->demandes = new ArrayCollection();
+        $this->historiques = new ArrayCollection();
     }
     public function getId(): ?int
     {

@@ -11,6 +11,8 @@ use App\Entity\Payment;
 use App\Repository\AvailabilityRepository;
 use App\Repository\DemandeReservationRepository;
 use App\Repository\HistoriqueReservationRepository;
+use App\Repository\ReservationVoyageurRepository;
+use App\Repository\UserRepository;
 use App\Repository\PropertyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +20,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
-use App\Utils\Utils\ReservationNumberGenerator;
+use App\Utils\ReservationNumberGenerator;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+use Psr\Log\LoggerInterface;
+
 
 class DemandeReservationController extends AbstractController
 {
@@ -26,80 +32,103 @@ class DemandeReservationController extends AbstractController
     private $serializer;
     private $demandeRepository;
     private $historiqueRepository;
+    private $logger;
 
-    public function __construct(EntityManagerInterface $entityManager, SerializerInterface $serializer, DemandeReservationRepository $demandeRepository, HistoriqueReservationRepository $historiqueRepository)
+    public function __construct(EntityManagerInterface $entityManager, SerializerInterface $serializer, DemandeReservationRepository $demandeRepository, HistoriqueReservationRepository $historiqueRepository, LoggerInterface $logger)
     {
         $this->entityManager = $entityManager;
         $this->serializer = $serializer;
         $this->demandeRepository = $demandeRepository;
         $this->historiqueRepository = $historiqueRepository;
+        $this->logger = $logger;
+
     }
 
     #[Route('/api/demandes', name: 'create_demande_reservation', methods: ['POST'])]
-    public function createDemandeReservation(Request $request, PropertyRepository $propertyRepository): JsonResponse
+    public function createDemandeReservation(Request $request, PropertyRepository $propertyRepository, MailerInterface $mailer): JsonResponse
     {
+        $this->logger->info('Received create demande reservation request.');
+
         $data = json_decode($request->getContent(), true);
 
         if (!$data) {
+            $this->logger->error('Invalid JSON received.');
             return new JsonResponse(['message' => 'Invalid JSON'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $requiredFields = ['property', 'dateArrivee', 'dateDepart', 'guestNb', 'name', 'surname', 'voyageurId', 'email'];
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field])) {
+                $this->logger->error("Missing required field: $field");
+                return new JsonResponse(['message' => "Missing required field: $field"], JsonResponse::HTTP_BAD_REQUEST);
+            }
         }
 
         $property = $propertyRepository->find($data['property']);
         if (!$property) {
+            $this->logger->error('Property not found: ' . $data['property']);
             return new JsonResponse(['message' => 'Property not found'], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        $demande = new DemandeReservation();
-        $demande->setDateArrivee(new \DateTime($data['dateArrivee']));
-        $demande->setDateDepart(new \DateTime($data['dateDepart']));
-        $demande->setGuestNb($data['guestNb']);
-        $demande->setProperty($property);
-        $demande->setStatus('En attente');
-        $demande->setCreatedAt(new \DateTime());
-        $demande->setName($data['name']);
-        $demande->setSurname($data['surname']);
-        $demande->setVoyageurId($data['voyageurId']);
-        $demande->setReservationNumber(ReservationNumberGenerator::generate());
-        $demande->setActive(false);
-        $demande->setTotalPrice($property->getPrice() * $demande->getDateArrivee()->diff($demande->getDateDepart())->days);
+        try {
+            $demande = new DemandeReservation();
+            $demande->setDateArrivee(new \DateTime($data['dateArrivee']));
+            $demande->setDateDepart(new \DateTime($data['dateDepart']));
+            $demande->setGuestNb($data['guestNb']);
+            $demande->setProperty($property);
+            $demande->setStatus('En attente');
+            $demande->setCreatedAt(new \DateTime());
+            $demande->setName($data['name']);
+            $demande->setSurname($data['surname']);
+            $demande->setVoyageurId($data['voyageurId']);
+            $demande->setReservationNumber(ReservationNumberGenerator::generate());
+            $demande->setActive(false);
+            $demande->setTotalPrice($property->getPrice() * $demande->getDateArrivee()->diff($demande->getDateDepart())->days);
 
-        $historique = new HistoriqueReservation();
-        $historique->setDateArrivee(new \DateTime($data['dateArrivee']));
-        $historique->setDateDepart(new \DateTime($data['dateDepart']));
-        $historique->setGuestNb($data['guestNb']);
-        $historique->setProperty($property);
-        $historique->setStatus('En attente');
-        $historique->setCreatedAt(new \DateTime());
-        $historique->setName($data['name']);
-        $historique->setSurname($data['surname']);
-        $historique->setVoyageurId($data['voyageurId']);
-        $historique->setTotalPrice($demande->getTotalPrice());
-        $historique->setDemandeReservation($demande);
-        $historique->setReservationNumber($demande->getReservationNumber());
+            $historique = new HistoriqueReservation();
+            $historique->setDateArrivee(new \DateTime($data['dateArrivee']));
+            $historique->setDateDepart(new \DateTime($data['dateDepart']));
+            $historique->setGuestNb($data['guestNb']);
+            $historique->setProperty($property);
+            $historique->setStatus('En attente');
+            $historique->setCreatedAt(new \DateTime());
+            $historique->setName($data['name']);
+            $historique->setSurname($data['surname']);
+            $historique->setVoyageurId($data['voyageurId']);
+            $historique->setTotalPrice($demande->getTotalPrice());
+            $historique->setDemandeReservation($demande);
+            $historique->setReservationNumber($demande->getReservationNumber());
 
-        $this->entityManager->persist($demande);
-        $this->entityManager->persist($historique);
-        $this->entityManager->flush();
-        // Envoyer email de confirmation au voyageur
-        $voyageurEmail = (new Email())
-        ->from('noreply@yourdomain.com')
-        ->to($data['email'])
-        ->subject('Votre demande de réservation a été reçue')
-        ->text("Nous avons bien reçu votre demande de réservation pour la propriété {$property->getName()} du {$data['dateArrivee']} au {$data['dateDepart']}.\n\nNuméro de demande: {$demande->getReservationNumber()}");
+            $this->entityManager->persist($demande);
+            $this->entityManager->persist($historique);
+            $this->entityManager->flush();
 
-        $mailer->send($voyageurEmail);
+            // Envoyer email de confirmation au voyageur
+            $voyageurEmail = (new Email())
+                ->from('hello.teampcs@outlook.com')
+                ->to($data['email'])
+                ->subject('Votre demande de réservation a été reçue')
+                ->text("Nous avons bien reçu votre demande de réservation pour la propriété {$property->getName()} du {$data['dateArrivee']} au {$data['dateDepart']}.\n\nNuméro de demande: {$demande->getReservationNumber()}");
 
-        // Envoyer email de demande au propriétaire
-        $proprietorEmail = (new Email())
-        ->from('noreply@yourdomain.com')
-        ->to($property->getProprio()->getEmail())
-        ->subject('Nouvelle demande de réservation')
-        ->text("Vous avez reçu une nouvelle demande de réservation pour votre propriété {$property->getName()} du {$data['dateArrivee']} au {$data['dateDepart']}.\n\nNuméro de demande: {$demande->getReservationNumber()}");
+            $mailer->send($voyageurEmail);
 
-        $mailer->send($proprietorEmail);
-        $responseData = $this->serializer->serialize($demande, 'json', ['groups' => 'demande:read']);
-        return new JsonResponse($responseData, JsonResponse::HTTP_CREATED, [], true);
+            // Envoyer email de demande au propriétaire
+            $proprietorEmail = (new Email())
+                ->from('hello.teampcs@outlook.com')
+                ->to($property->getProprio()->getEmail())
+                ->subject('Nouvelle demande de réservation')
+                ->text("Vous avez reçu une nouvelle demande de réservation pour votre propriété {$property->getName()} du {$data['dateArrivee']} au {$data['dateDepart']}.\n\nNuméro de demande: {$demande->getReservationNumber()}");
+
+            $mailer->send($proprietorEmail);
+
+            $responseData = $this->serializer->serialize($demande, 'json', ['groups' => 'demande:read']);
+            return new JsonResponse($responseData, JsonResponse::HTTP_CREATED, [], true);
+        } catch (\Exception $e) {
+            $this->logger->error('Error creating demande reservation: ' . $e->getMessage());
+            return new JsonResponse(['message' => 'Error creating demande reservation'], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     #[Route('/api/demandes/{id}', name: 'update_demande_reservation', methods: ['PUT'])]
     public function updateDemandeReservation(int $id, Request $request, PropertyRepository $propertyRepository, HistoriqueReservationRepository $historiqueRepository): JsonResponse
@@ -158,17 +187,18 @@ class DemandeReservationController extends AbstractController
     }
 
     #[Route('/api/demandes/{id}/cancel', name: 'cancel_demande_reservation', methods: ['POST'])]
-    public function cancelDemandeReservation(int $id): JsonResponse
+    public function cancelDemandeReservation(int $id, MailerInterface $mailer, UserRepository $userRepository): JsonResponse
     {
         $demande = $this->demandeRepository->find($id);
         if (!$demande) {
             return new JsonResponse(['message' => 'Demande not found'], JsonResponse::HTTP_NOT_FOUND);
         }
-
+    
         $demande->setStatus('Annulée');
-        $demande->setCancellationDate(new \DateTime());
+        $currentDate = new \DateTime();
+        $demande->setUpdatedAt($currentDate); // Utilisation de la date actuelle comme date d'annulation
         $this->entityManager->flush();
-
+    
         // Mettre à jour l'historique
         $historique = $this->historiqueRepository->findOneBy([
             'voyageurId' => $demande->getVoyageurId(),
@@ -178,19 +208,45 @@ class DemandeReservationController extends AbstractController
         ]);
         if ($historique) {
             $historique->setStatus('Annulée');
-            $historique->setCancellationDate(new \DateTime());
+            $historique->setUpdatedAt($currentDate); // Utilisation de la date actuelle comme date d'annulation
             $this->entityManager->flush();
         }
-
-        $cancellationDate = $demande->getCancellationDate();
-        $cancellationDateStr = $cancellationDate ? $cancellationDate->format('Y-m-d H:i:s') : '';
-
+    
+        $cancellationDateStr = $currentDate->format('Y-m-d H:i:s');
+    
+        // Récupérer les informations du voyageur
+        $voyageur = $userRepository->find($demande->getVoyageurId());
+        if (!$voyageur) {
+            return new JsonResponse(['message' => 'Voyageur not found'], JsonResponse::HTTP_NOT_FOUND);
+        }
+        $voyageurEmail = $voyageur->getEmail();
+    
+        // Envoyer email de confirmation au voyageur
+        $emailVoyageur = (new Email())
+            ->from('hello.teampcs@outlook.com')
+            ->to($voyageurEmail)
+            ->subject('Votre demande de réservation a été annulée')
+            ->text("Votre demande de réservation pour la propriété {$demande->getProperty()->getName()} du {$demande->getDateArrivee()->format('Y-m-d')} au {$demande->getDateDepart()->format('Y-m-d')} a été annulée.\n\nNuméro de réservation: {$demande->getReservationNumber()}\n\nDate d'annulation: {$cancellationDateStr}");
+    
+        $mailer->send($emailVoyageur);
+    
+        // Envoyer email de notification au propriétaire
+        $proprietorEmail = (new Email())
+            ->from('hello.teampcs@outlook.com')
+            ->to($demande->getProperty()->getProprio()->getEmail())
+            ->subject('Une réservation a été annulée')
+            ->text("La réservation pour votre propriété {$demande->getProperty()->getName()} du {$demande->getDateArrivee()->format('Y-m-d')} au {$demande->getDateDepart()->format('Y-m-d')} a été annulée.\n\nNuméro de réservation: {$demande->getReservationNumber()}\n\nDate d'annulation: {$cancellationDateStr}");
+    
+        $mailer->send($proprietorEmail);
+    
         return new JsonResponse([
             'message' => 'Demande annulée avec succès',
             'reservationNumber' => $demande->getReservationNumber(),
             'cancellationDate' => $cancellationDateStr
         ], JsonResponse::HTTP_OK);
     }
+    
+
 
     #[Route('/api/demandes/{id}/accept', name: 'accept_demande_reservation', methods: ['POST'])]
 public function acceptDemandeReservation(int $id, MailerInterface $mailer): JsonResponse
@@ -307,7 +363,7 @@ public function rejectDemandeReservation(int $id, MailerInterface $mailer): Json
 
     // Envoyer email de refus au voyageur
     $voyageurEmail = (new Email())
-        ->from('noreply@yourdomain.com')
+        ->from('hello.teampcs@outlook.com')
         ->to($demande->getEmail())
         ->subject('Votre demande de réservation a été refusée')
         ->text("Votre demande de réservation pour la propriété {$demande->getProperty()->getName()} du {$demande->getDateArrivee()->format('Y-m-d')} au {$demande->getDateDepart()->format('Y-m-d')} a été refusée.\n\nNuméro de demande: {$demande->getReservationNumber()}");

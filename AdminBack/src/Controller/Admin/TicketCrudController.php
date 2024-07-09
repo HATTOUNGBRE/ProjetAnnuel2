@@ -44,6 +44,7 @@ class TicketCrudController extends AbstractCrudController
             ChoiceField::new('status')->setLabel('Statut')->setChoices([
                 'Ouvert' => 'ouvert',
                 'En cours' => 'en_cours',
+                'Résolu' => 'resolu',
                 'Fermé' => 'ferme',
             ]),
             DateTimeField::new('createdAt')->hideOnForm(),

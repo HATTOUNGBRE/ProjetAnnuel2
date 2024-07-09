@@ -15,17 +15,27 @@ const Calendar = ({ property }) => {
                 const data = await response.json();
                 console.log('Fetched reservations:', data);
 
-                const reservations = data.map(reservation => ({
-                    title: `Réservation - ${reservation.guestNb} personnes`,
-                    start: reservation.dateArrivee,
-                    end: reservation.dateDepart,
-                    color: '#A5BE00',
-                    textColor: 'white',
-                    extendedProps: {
-                        name: `${reservation.voyageurName} ${reservation.voyageurSurname}`, // Using the added name and surname properties
-                        guestNb: reservation.guestNb
+                const reservations = data.map(reservation => {
+                    let color = '#A5BE00'; // Default color for accepted reservations
+                    if (reservation.status === 'Annulée') {
+                        color = 'gray'; // Color for canceled reservations
+                    } else if (reservation.status === 'En attente') {
+                        color = 'orange'; // Color for pending reservations
                     }
-                }));
+
+                    return {
+                        title: `Réservation - ${reservation.guestNb} personnes`,
+                        start: reservation.dateArrivee,
+                        end: reservation.dateDepart,
+                        color: color,
+                        textColor: 'white',
+                        extendedProps: {
+                            name: `${reservation.voyageurName} ${reservation.voyageurSurname}`,
+                            guestNb: reservation.guestNb,
+                            status: reservation.status // Adding the status to the extendedProps
+                        }
+                    };
+                });
 
                 console.log('Transformed events:', reservations);
                 setEvents(reservations);
@@ -42,7 +52,7 @@ const Calendar = ({ property }) => {
     const handleEventMouseEnter = (info) => {
         const tooltip = document.createElement('div');
         tooltip.className = 'tooltip';
-        tooltip.innerHTML = `${info.event.extendedProps.name} - ${info.event.extendedProps.guestNb} guests`;
+        tooltip.innerHTML = `${info.event.extendedProps.name} - ${info.event.extendedProps.guestNb} guests - Status: ${info.event.extendedProps.status}`;
         document.body.appendChild(tooltip);
 
         createPopper(info.el, tooltip, {
