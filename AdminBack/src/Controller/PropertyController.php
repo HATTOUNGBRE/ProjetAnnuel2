@@ -8,6 +8,8 @@ use App\Entity\Category;
 use App\Entity\User;
 use App\Repository\PropertyRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\ReservationVoyageurRepository;
+use App\Repository\DemandeReservationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,7 +22,6 @@ use Psr\Log\LoggerInterface;
 
 class PropertyController extends AbstractController
 {
-
     private $entityManager;
     private $serializer;
 
@@ -38,6 +39,7 @@ class PropertyController extends AbstractController
 
         return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
     }
+
     #[Route('/api/properties', name: 'get_all_properties', methods: ['GET'])]
     public function getAllProperties(PropertyRepository $propertyRepository): JsonResponse
     {
@@ -56,7 +58,7 @@ class PropertyController extends AbstractController
 
         return new JsonResponse($data);
     }
-    
+
     #[Route('/api/properties/{userId}', name: 'user_properties', methods: ['GET'])]
     public function getUserProperties(int $userId, PropertyRepository $propertyRepository, SerializerInterface $serializer): JsonResponse
     {
@@ -153,7 +155,6 @@ class PropertyController extends AbstractController
         }
     }
 
-
     #[Route('/api/properties/{id}', name: 'update_property', methods: ['PUT'])]
     public function update(
         int $id,
@@ -218,6 +219,7 @@ class PropertyController extends AbstractController
 
         return new JsonResponse(['message' => 'Propriété supprimée avec succès.'], 200);
     }
+
     #[Route('/api/search-properties', name: 'search_properties', methods: ['GET'])]
     public function searchProperties(Request $request, PropertyRepository $propertyRepository, SerializerInterface $serializer, LoggerInterface $logger): JsonResponse
     {
@@ -251,38 +253,51 @@ class PropertyController extends AbstractController
         return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
     }
 
-#[Route('/api/property-details/{id}', name: 'get_property_details', methods: ['GET'])]
-public function getPropertyDetails(int $id, PropertyRepository $propertyRepository): JsonResponse
-{
-    $property = $propertyRepository->find($id);
+    #[Route('/api/property-details/{id}', name: 'get_property_details', methods: ['GET'])]
+    public function getPropertyDetails(int $id, PropertyRepository $propertyRepository): JsonResponse
+    {
+        $property = $propertyRepository->find($id);
 
-    if (!$property) {
-        return new JsonResponse(['message' => 'Propriété non trouvée.'], JsonResponse::HTTP_NOT_FOUND);
+        if (!$property) {
+            return new JsonResponse(['message' => 'Propriété non trouvée.'], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $data = [
+            'id' => $property->getId(),
+            'name' => $property->getName(),
+            'description' => $property->getDescription(),
+            'image' => $property->getImage(),
+            'commune' => $property->getCommune(),
+            'price' => $property->getPrice(),
+            'maxPersons' => $property->getMaxPersons(),
+            'hasPool' => $property->HasPool(),
+            'area' => $property->getArea(),
+            'hasBalcony' => $property->HasBalcony(),
+            'createdAt' => $property->getCreatedAt()->format('Y-m-d H:i:s'),
+            'updatedAt' => $property->getUpdatedAt() ? $property->getUpdatedAt()->format('Y-m-d H:i:s') : null,
+        ];
+
+        return new JsonResponse($data);
     }
 
-    $data = [
-        'id' => $property->getId(),
-        'name' => $property->getName(),
-        'description' => $property->getDescription(),
-        'image' => $property->getImage(),
-        'commune' => $property->getCommune(),
-        'price' => $property->getPrice(),
-        'maxPersons' => $property->getMaxPersons(),
-        'hasPool' => $property->HasPool(),
-        'area' => $property->getArea(),
-        'hasBalcony' => $property->HasBalcony(),
-        'createdAt' => $property->getCreatedAt()->format('Y-m-d H:i:s'),
-        'updatedAt' => $property->getUpdatedAt() ? $property->getUpdatedAt()->format('Y-m-d H:i:s') : null,
-    ];
+    #[Route('/api/properties/{id}/reservations', name: 'get_property_reservations', methods: ['GET'])]
+    public function getPropertyReservations(int $id, ReservationVoyageurRepository $reservationRepository, DemandeReservationRepository $demandeRepository): JsonResponse
+    {
+        $reservations = $reservationRepository->findBy(['property' => $id]);
 
-    return new JsonResponse($data);
-}
+        $response = [];
+        foreach ($reservations as $reservation) {
+            $demande = $demandeRepository->findOneBy(['reservationNumber' => $reservation->getReservationNumber()]);
+            $response[] = [
+                'dateArrivee' => $reservation->getDateArrivee()->format('Y-m-d'),
+                'dateDepart' => $reservation->getDateDepart()->format('Y-m-d'),
+                'guestNb' => $reservation->getGuestNb(),
+                'status' => $demande ? $demande->getStatus() : 'Unknown',
+                'voyageurName' => $reservation->getVoyageurName(),
+                'voyageurSurname' => $reservation->getVoyageurSurname(),
+            ];
+        }
 
-#[Route('/api/properties/{id}/reservations', name: 'get_property_reservations', methods: ['GET'])]
-public function getPropertyReservations(int $id, ReservationVoyageurRepository $reservationRepository): JsonResponse
-{
-    $reservations = $reservationRepository->findBy(['property' => $id]);
-
-    return $this->json($reservations, 200, [], ['groups' => 'reservation:read']);
-}
+        return new JsonResponse($response);
+    }
 }

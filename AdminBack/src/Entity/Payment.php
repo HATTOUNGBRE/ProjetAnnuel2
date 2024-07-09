@@ -27,7 +27,7 @@ class Payment
     private ?string $method = null;
 
     #[ORM\ManyToOne(targetEntity: ReservationVoyageur::class, inversedBy: "payments")]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable:true)]
     #[Groups(['payment:read', 'payment:write'])]
     private ?ReservationVoyageur $reservation = null;
 
@@ -44,7 +44,7 @@ class Payment
     private ?string $lastName = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Groups(['payment:read', 'payment:write'])]
     private ?User $proprietor = null;
 

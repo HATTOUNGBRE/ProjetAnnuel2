@@ -24,6 +24,9 @@ import CreatePrestation from "./components/proprio/CreatePrestation";
 import ReservationForm from "./components/voyageur/ReservationForm";
 import PaymentPage from "./components/voyageur/PaymentPage";
 import Docs from "./components/dashboard/Docs";
+import ChatbotBubble from "./components/ChatbotBubble";
+import AboutUs from "./components/AboutUs";
+import StripeCheckoutForm from "./components/voyageur/StripeCheckoutForm";
 
 
 const ProtectedRoute = ({ element, allowedRole }) => {
@@ -56,6 +59,7 @@ function App() {
         <div className="flex flex-col min-h-screen">
             <Header isLoggedIn={isLoggedIn} userRole={userRole} />
             <main className="flex-grow">
+                <ChatbotBubble />
                 <Routes>
                     <Route exact path="/" element={<Main isLoggedIn={isLoggedIn} userRole={userRole} />} />
                     <Route path="/components/inscription" element={<Inscription />} />
@@ -77,6 +81,7 @@ function App() {
                     <Route path="/components/dashboard/prestataire" element={<ProtectedRoute element={<PrestataireDashboard />} allowedRole="prestataire" />} />
                     <Route path="/components/dashboard/voyageur" element={<ProtectedRoute element={<VoyageurDashboard />} allowedRole="voyageur" />} />
                     <Route path="/louer-un-logement" element={<ReservationForm />} />
+                    <Route path="/about-us" element={<AboutUs />} />
                     <Route path="/payment" element={<PaymentPage />} />
                     <Route path={`/${userRole}/Docs`} element={<Docs />}  />
                     <Route path="/error400" element={<Error400 />} />

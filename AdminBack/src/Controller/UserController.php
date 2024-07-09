@@ -20,8 +20,12 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 
+//tu vois ou pas ?
+//oui
+//damn
 
 class UserController extends AbstractController
 {
@@ -42,8 +46,9 @@ class UserController extends AbstractController
         ValidatorInterface $validator,
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $entityManager,
-        UserRepository $userRepository, // Add UserRepository here
-        MailerInterface $mailer // Add MailerInterface here
+        UserRepository $userRepository,
+        MailerInterface $mailer,
+        LoggerInterface $logger // Ajoutez cette ligne
     ): Response {
         $data = $request->request->all();
         $imageProfile = $request->files->get('imageProfile');
@@ -53,6 +58,14 @@ class UserController extends AbstractController
         $email = $data['email'] ?? '';
         $password = $data['password'] ?? '';
         $categoryUserId = $data['categoryUserId'] ?? '';
+
+        // Log the received data
+        $logger->info('Received registration data', [
+            'name' => $name,
+            'surname' => $surname,
+            'email' => $email,
+            'categoryUserId' => $categoryUserId
+        ]);
 
         // Check if email already exists
         $existingUser = $userRepository->findOneBy(['email' => $email]);
@@ -90,11 +103,12 @@ class UserController extends AbstractController
         $hashedPassword = $passwordHasher->hashPassword($user, $password); // Hash the password
         $user->setPassword($hashedPassword);
         $user->setCreatedAt(new \DateTimeImmutable());
-        $user->setisVerified(false);
+        $user->setIsVerified(false);
 
         // Retrieve CategoryUser entity
         $categoryUser = $entityManager->getRepository(CategoryUser::class)->find($categoryUserId);
         if (!$categoryUser) {
+            $logger->error('Invalid category user ID', ['categoryUserId' => $categoryUserId]);
             return new JsonResponse(['message' => 'Invalid category user ID'], Response::HTTP_BAD_REQUEST);
         }
         $user->setCategoryUser($categoryUser);

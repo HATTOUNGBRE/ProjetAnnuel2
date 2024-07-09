@@ -1,0 +1,63 @@
+# config/routes/admin.yaml
+# config/routes.yaml
+
+
+# Routes pour le contrôleur CategoryUserCrudController
+admin_category_user:
+    path: /admin/category-user
+    controller: App\Controller\Admin\CategoryUserCrudController::index
+
+# Routes pour le contrôleur DashboardController
+admin_dashboard:
+    path: /admin
+    controller: App\Controller\Admin\DashboardController::index
+
+# Routes pour le contrôleur DemandePrestationCrudController
+admin_demande_prestation:
+    path: /admin/demande-prestation
+    controller: App\Controller\Admin\DemandePrestationCrudController::index
+
+# Routes pour le contrôleur DemandeReservationCrudController
+admin_demande_reservation:
+    path: /admin/demande-reservation
+    controller: App\Controller\Admin\DemandeReservationCrudController::index
+
+# Routes pour le contrôleur HistoriqueReservationCrudController
+admin_historique_reservation:
+    path: /admin/historique-reservation
+    controller: App\Controller\Admin\HistoriqueReservationCrudController::index
+
+# Routes pour le contrôleur PaymentCrudController
+admin_payment:
+    path: /admin/payment
+    controller: App\Controller\Admin\PaymentCrudController::index
+
+# Routes pour le contrôleur PrestataireCrudController
+admin_prestataire:
+    path: /admin/prestataire
+    controller: App\Controller\Admin\PrestataireCrudController::index
+
+# Routes pour le contrôleur PrestationCrudController
+admin_prestation:
+    path: /admin/prestation
+    controller: App\Controller\Admin\PrestationCrudController::index
+
+# Routes pour le contrôleur PropertyCrudController
+admin_property:
+    path: /admin/property
+    controller: App\Controller\Admin\PropertyCrudController::index
+
+# Routes pour le contrôleur ReservationVoyageurCrudController
+admin_reservation_voyageur:
+    path: /admin/reservation-voyageur
+    controller: App\Controller\Admin\ReservationVoyageurCrudController::index
+
+# Routes pour le contrôleur TicketCrudController
+admin_ticket:
+    path: /admin/ticket
+    controller: App\Controller\Admin\TicketCrudController::index
+
+# Routes pour le contrôleur UserCrudController
+admin_user:
+    path: /admin/user
+    controller: App\Controller\Admin\UserCrudController::index

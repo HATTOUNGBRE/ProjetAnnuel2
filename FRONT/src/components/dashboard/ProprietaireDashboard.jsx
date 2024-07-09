@@ -229,46 +229,50 @@ const ProprietaireDashboard = () => {
 
                                 return (
                                     <li key={demande.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
-                                        <h3 className="text-lg font-semibold">Propriété: {demande.property.name}</h3>
-                                        <p>Date d'arrivée: {new Date(demande.dateArrivee).toLocaleDateString()}</p>
-                                        <p>Date de départ: {new Date(demande.dateDepart).toLocaleDateString()}</p>
-                                        <p>Nombre de personnes: {demande.guestNb}</p>
-                                        <p>Prix total: {demande.totalPrice} €</p>
-                                        <p>Statut: {demande.status}</p>
-                                        {demande.status === 'Acceptée' || demande.status === 'Accepted' ? (
-                                            <>
-                                                {isCurrent ? (
-                                                    <>
-                                                        <button className="bg-gray-500 text-white mr-2 px-4 py-2 rounded mt-2 cursor-not-allowed">
-                                                           Statut: En cours
-                                                        </button>
-                                                        <button className="bg-red-500 text-white px-4 py-2 rounded mt-2 cursor-not-allowed" disabled>
-                                                            Annuler
-                                                        </button>
-                                                        <p className="text-red-500">Impossible d'annuler une demande en cours.</p>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <button className="bg-pcs-400 text-white mr-2 px-4 py-2 rounded mt-2" disabled>
-                                                            Statut: {demande.status}
-                                                        </button>
-                                                        <button onClick={() => handleCancel(demande.id)} className="bg-red-500 text-white px-4 py-2 rounded mt-2 hover:bg-red-600">
-                                                            Annuler
-                                                        </button>
-                                                    </>
-                                                )}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <button onClick={() => handleAccept(demande.id)} className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600">
-                                                    Accepter
-                                                </button>
-                                                <button onClick={() => handleReject(demande.id)} className="bg-red-500 text-white px-4 py-2 rounded mt-2 hover:bg-red-600">
-                                                    Refuser
-                                                </button>
-                                            </>
-                                        )}
-                                    </li>
+                                    <h3 className="text-lg font-semibold">Propriété: {demande.property.name}</h3>
+                                    <p>Date d'arrivée: {new Date(demande.dateArrivee).toLocaleDateString()}</p>
+                                    <p>Date de départ: {new Date(demande.dateDepart).toLocaleDateString()}</p>
+                                    <p>Nombre de personnes: {demande.guestNb}</p>
+                                    <p>Prix total: {demande.totalPrice} €</p>
+                                    <p>Statut: {demande.status}</p>
+                                    {demande.status !== 'Annulée' && (
+                                        <>
+                                            {demande.status === 'Acceptée' ? (
+                                                <>
+                                                    {isCurrent ? (
+                                                        <>
+                                                            <button className="bg-gray-500 text-white mr-2 px-4 py-2 rounded mt-2 cursor-not-allowed">
+                                                               Statut: En cours
+                                                            </button>
+                                                            <button className="bg-red-500 text-white px-4 py-2 rounded mt-2 cursor-not-allowed" disabled>
+                                                                Annuler
+                                                            </button>
+                                                            <p className="text-red-500">Impossible d'annuler une demande en cours.</p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <button className="bg-pcs-400 text-white mr-2 px-4 py-2 rounded mt-2" disabled>
+                                                                Statut: {demande.status}
+                                                            </button>
+                                                            <button onClick={() => handleCancel(demande.id)} className="bg-red-500 text-white px-4 py-2 rounded mt-2 hover:bg-red-600">
+                                                                Annuler
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <button onClick={() => handleAccept(demande.id)} className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600">
+                                                        Accepter
+                                                    </button>
+                                                    <button onClick={() => handleReject(demande.id)} className="bg-red-500 text-white px-4 py-2 rounded mt-2 hover:bg-red-600">
+                                                        Refuser
+                                                    </button>
+                                                </>
+                                            )}
+                                        </>
+                                    )}
+                                </li>
                                 );
                             })}
                         </ul>

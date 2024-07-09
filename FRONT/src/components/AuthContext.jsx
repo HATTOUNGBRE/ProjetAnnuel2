@@ -9,6 +9,8 @@ export const AuthProvider = ({ children }) => {
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState('');
   const [userSurname, setUserSurname] = useState('');
+  const [email, setEmail] =  useState('');
+
   const [category, setCategoryUserId] = useState(null);
   const [loading, setLoading] = useState(true); // New state for loading
 
@@ -23,12 +25,14 @@ export const AuthProvider = ({ children }) => {
         setUserName(data.name);
         setUserSurname(data.surname);
         setCategoryUserId(data.category_user);
+        setEmail(data.email);
         setUserRole(Cookies.get('role')); // Ensure the role is set from the cookie
       } else {
         setIsLoggedIn(false);
         setUserId(null);
         setUserName('');
         setUserSurname('');
+        setEmail('');
         setCategoryUserId(null);
         setUserRole('');
       }
@@ -88,7 +92,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, userRole, userId, userName, userSurname, category, login, logout, fetchUserDetails, loading }}>
+    <AuthContext.Provider value={{ isLoggedIn, userRole, userId, userName, userSurname, category, email, login, logout, fetchUserDetails, loading }}>
       {children}
     </AuthContext.Provider>
   );

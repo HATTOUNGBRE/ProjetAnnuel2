@@ -25,6 +25,7 @@ function Main() {
   const fetchAllProperties = async () => {
     try {
       const response = await fetch('http://localhost:8000/api/properties');
+      mode: 'no-cors'
       const data = await response.json();
       setAllProperties(data);
       console.log('All properties fetched:', data);
@@ -101,10 +102,9 @@ function Main() {
         )}
       </div>
 
-      {/* Barre de recherche */}
-      {!isLoggedIn || userRole === 'voyageur' ? (
+
         <SearchForm handleSearch={handleSearch} searchTerm={searchTerm} setSearchTerm={setSearchTerm} maxPersons={maxPersons} setMaxPersons={setMaxPersons} />
-      ) : null}
+     
 
       {/* Résultats de la recherche */}
       <div className="mt-10 w-full">
