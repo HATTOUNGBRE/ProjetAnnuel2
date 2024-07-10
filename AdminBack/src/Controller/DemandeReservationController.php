@@ -48,14 +48,16 @@ class DemandeReservationController extends AbstractController
     public function createDemandeReservation(Request $request, PropertyRepository $propertyRepository, MailerInterface $mailer): JsonResponse
     {
         $this->logger->info('Received create demande reservation request.');
-
+    
         $data = json_decode($request->getContent(), true);
-
+    
+        $this->logger->info('Data received: ' . json_encode($data)); // Add this line
+    
         if (!$data) {
             $this->logger->error('Invalid JSON received.');
             return new JsonResponse(['message' => 'Invalid JSON'], JsonResponse::HTTP_BAD_REQUEST);
         }
-
+    
         $requiredFields = ['property', 'dateArrivee', 'dateDepart', 'guestNb', 'name', 'surname', 'voyageurId', 'email'];
         foreach ($requiredFields as $field) {
             if (!isset($data[$field])) {
@@ -63,13 +65,19 @@ class DemandeReservationController extends AbstractController
                 return new JsonResponse(['message' => "Missing required field: $field"], JsonResponse::HTTP_BAD_REQUEST);
             }
         }
-
+    
+        // Validate email
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $this->logger->error('Invalid email address: ' . $data['email']);
+            return new JsonResponse(['message' => 'Invalid email address'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+    
         $property = $propertyRepository->find($data['property']);
         if (!$property) {
             $this->logger->error('Property not found: ' . $data['property']);
             return new JsonResponse(['message' => 'Property not found'], JsonResponse::HTTP_NOT_FOUND);
         }
-
+    
         try {
             $demande = new DemandeReservation();
             $demande->setDateArrivee(new \DateTime($data['dateArrivee']));
@@ -84,7 +92,7 @@ class DemandeReservationController extends AbstractController
             $demande->setReservationNumber(ReservationNumberGenerator::generate());
             $demande->setActive(false);
             $demande->setTotalPrice($property->getPrice() * $demande->getDateArrivee()->diff($demande->getDateDepart())->days);
-
+    
             $historique = new HistoriqueReservation();
             $historique->setDateArrivee(new \DateTime($data['dateArrivee']));
             $historique->setDateDepart(new \DateTime($data['dateDepart']));
@@ -98,29 +106,29 @@ class DemandeReservationController extends AbstractController
             $historique->setTotalPrice($demande->getTotalPrice());
             $historique->setDemandeReservation($demande);
             $historique->setReservationNumber($demande->getReservationNumber());
-
+    
             $this->entityManager->persist($demande);
             $this->entityManager->persist($historique);
             $this->entityManager->flush();
-
+    
             // Envoyer email de confirmation au voyageur
             $voyageurEmail = (new Email())
                 ->from('hello.teampcs@outlook.com')
                 ->to($data['email'])
                 ->subject('Votre demande de réservation a été reçue')
                 ->text("Nous avons bien reçu votre demande de réservation pour la propriété {$property->getName()} du {$data['dateArrivee']} au {$data['dateDepart']}.\n\nNuméro de demande: {$demande->getReservationNumber()}");
-
+    
             $mailer->send($voyageurEmail);
-
+    
             // Envoyer email de demande au propriétaire
             $proprietorEmail = (new Email())
                 ->from('hello.teampcs@outlook.com')
                 ->to($property->getProprio()->getEmail())
                 ->subject('Nouvelle demande de réservation')
                 ->text("Vous avez reçu une nouvelle demande de réservation pour votre propriété {$property->getName()} du {$data['dateArrivee']} au {$data['dateDepart']}.\n\nNuméro de demande: {$demande->getReservationNumber()}");
-
+    
             $mailer->send($proprietorEmail);
-
+    
             $responseData = $this->serializer->serialize($demande, 'json', ['groups' => 'demande:read']);
             return new JsonResponse($responseData, JsonResponse::HTTP_CREATED, [], true);
         } catch (\Exception $e) {
@@ -128,7 +136,7 @@ class DemandeReservationController extends AbstractController
             return new JsonResponse(['message' => 'Error creating demande reservation'], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
+    
 
     #[Route('/api/demandes/{id}', name: 'update_demande_reservation', methods: ['PUT'])]
     public function updateDemandeReservation(int $id, Request $request, PropertyRepository $propertyRepository, HistoriqueReservationRepository $historiqueRepository): JsonResponse

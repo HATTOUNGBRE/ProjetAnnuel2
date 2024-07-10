@@ -28,6 +28,8 @@ const ReservationForm = () => {
     const fetchProperty = async () => {
       const searchParams = new URLSearchParams(location.search);
       const propertyId = searchParams.get('id');
+      console.log('AuthContext values:', { isLoggedIn, userRole, userId, userName, userSurname, email });
+  
 
       if (!propertyId) {
         setError('No property ID provided');
@@ -97,33 +99,38 @@ const ReservationForm = () => {
 
   const handleConfirmReservation = async () => {
     try {
+      const reservationData = {
+        dateArrivee,
+        dateDepart,
+        guestNb,
+        property: property.id,
+        name: userName,
+        surname: userSurname,
+        email: email,
+        voyageurId: userId,
+        totalPrice,
+      };
+  
+      console.log('Sending reservation data:', reservationData); // Add this line
+  
       const response = await fetch(`http://localhost:8000/api/demandes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          dateArrivee,
-          dateDepart,
-          guestNb,
-          property: property.id,
-          name: userName,
-          surname: userSurname,
-          email: email,
-          voyageurId: userId,
-          totalPrice,
-        }),
+        body: JSON.stringify(reservationData),
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to create reservation');
+        console.log('response:', response);
       }
-
+  
       const data = await response.json();
       setSuccess('Reservation successfully created');
       setError('');
       console.log('Reservation created:', data);
-
+  
       // Use navigate to pass state to payment page
       navigate('/payment', { state: { totalPrice } });
     } catch (error) {

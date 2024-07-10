@@ -18,12 +18,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-    
-    private $isSuspended;
 
     #[ORM\Column(length: 255)]
     #[Groups(['reservation:read', 'reservation:write'])]
-
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
@@ -32,7 +29,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     #[Groups(['reservation:read', 'reservation:write'])]
-
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
@@ -53,6 +49,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'json')]
     private $roles = [];
+
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    private ?string $resetToken = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $tokenExpiration = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private $isSuspended = false;
 
     /**
      * @var Collection<int, Property>
@@ -123,7 +128,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->isVerified;
     }
 
-    public function setisVerified(bool $isVerified): static
+    public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
         return $this;
@@ -162,10 +167,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // Méthodes requises par UserInterface
     public function getRoles(): array
     {
-        return ['ROLE_USER'];
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
     }
 
     public function getSalt(): ?string
@@ -197,6 +209,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsSuspended(bool $isSuspended): self
     {
         $this->isSuspended = $isSuspended;
+        return $this;
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $resetToken): self
+    {
+        $this->resetToken = $resetToken;
+        return $this;
+    }
+
+    public function getTokenExpiration(): ?\DateTimeInterface
+    {
+        return $this->tokenExpiration;
+    }
+
+    public function setTokenExpiration(?\DateTimeInterface $tokenExpiration): self
+    {
+        $this->tokenExpiration = $tokenExpiration;
         return $this;
     }
 
@@ -258,33 +292,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
     public function __toString(): string
+
     {
-        return $this->name . ' ' . $this->surname; // Modifiez ceci pour retourner la représentation souhaitée
+        $email = $this->email;
+
+        return $this->name . ' ' . $this->surname;
+
     }
 
-    public function getRole(): array
-    {
-        $role = $this->roles;
-        // garantir que chaque utilisateur a au moins le rôle ROLE_USER
-        $role[] = 'ROLE_USER';
-
-        return array_unique($role);
-    }
-
-    public function setRoles(array $role): self
-    {
-        $this->roles = $role;
-
-        return $this;
-    }
-
-    // Ajoutez cette méthode pour vérifier si l'utilisateur est un propriétaire
     public function isProprietaire(): bool
     {
         return in_array('ROLE_PROPRIETAIRE', $this->getRoles());
     }
-
-    // ... autres méthodes implémentées pour UserInterface ...
-
 }

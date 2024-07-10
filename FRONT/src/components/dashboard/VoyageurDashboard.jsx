@@ -100,18 +100,24 @@ const VoyageurDashboard = () => {
 
     const handleCheckIn = async (demandeId) => {
         try {
-            await fetch(`http://localhost:8000/api/checkin`, {
+            const response = await fetch(`http://localhost:8000/api/checkin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ reservationId: demandeId }),
+                body: JSON.stringify({ demandeId: demandeId }),
             });
+    
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
+    
             setDemandes(demandes.map(dem => (dem.id === demandeId ? { ...dem, status: 'Checked-in' } : dem)));
         } catch (error) {
             console.error('Error during check-in:', error);
         }
     };
+    
 
     const handleCheckOut = async (demandeId) => {
         try {
@@ -202,7 +208,7 @@ const VoyageurDashboard = () => {
                                                 <button
                                                     onClick={() => handleEditClick(demande)}
                                                     className={`py-1 px-3 rounded mt-2 mr-2 ${demande.status === 'Acceptée' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-500 text-white'}`}
-                                                    disabled={demande.status === 'Acceptée'}
+                                                    disabled={demande.status === 'Acceptée'|| demande.status === 'Annulée' || demande.status === 'Checked-in' || demande.status === 'Checked-out'}
                                                 >
                                                     Modifier
                                                 </button>
@@ -216,8 +222,8 @@ const VoyageurDashboard = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => handleCheckOut(demande.id)}
-                                                    className={`py-1 px-3 rounded mt-2 ${new Date().toLocaleDateString() === new Date(demande.dateDepart).toLocaleDateString() ? 'bg-yellow-500 text-white' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}
-                                                    disabled={new Date().toLocaleDateString() !== new Date(demande.dateDepart).toLocaleDateString()}
+                                                    className='py-1 px-3 rounded mt-2  bg-yellow-500 text-white'
+                                                    disabled={demande.status !== 'Checked-in' || demande.status === 'Checked-out' }
                                                 >
                                                     Check-out
                                                 </button>

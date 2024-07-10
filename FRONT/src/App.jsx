@@ -27,10 +27,13 @@ import Docs from "./components/dashboard/Docs";
 import ChatbotBubble from "./components/ChatbotBubble";
 import AboutUs from "./components/AboutUs";
 import StripeCheckoutForm from "./components/voyageur/StripeCheckoutForm";
-
+//import PasswordResetRequestForm from "./components/resetpassword/PasswordResetRequestForm";
+//import PasswordResetForm from "./components/resetpassword/PasswordResetForm";
+import ForgotPassword from "./components/resetpassword/ForgotPassword";
+import ResetPassword from "./components/resetpassword/ResetPassword";
 
 const ProtectedRoute = ({ element, allowedRole }) => {
-    const { isLoggedIn, userRole, loading } = useContext(AuthContext);
+    const { isLoggedIn, userRole, loading , email} = useContext(AuthContext);
     if (loading) {
         return <div>Loading...</div>; // Show loading indicator while fetching user details
     }
@@ -41,7 +44,7 @@ const ProtectedRoute = ({ element, allowedRole }) => {
 };
 
 function App() {
-    const { isLoggedIn, userRole, userId, userName, userSurname, category, loading } = useContext(AuthContext);
+    const { isLoggedIn, userRole, userId, userName, userSurname, category, loading, email } = useContext(AuthContext);
 
     useEffect(() => {
         console.log("UserRole:", userRole);
@@ -49,7 +52,8 @@ function App() {
         console.log("UserName:", userName);
         console.log("UserSurname:", userSurname);
         console.log("CategoryUserId:", category);
-    }, [userRole, userId, userName, userSurname, category]);
+        console.log("Email:", email);
+    }, [userRole, userId, userName, userSurname, category, email]);
 
     if (loading) {
         return <div>Loading...</div>; // Show loading indicator while fetching user details
@@ -59,13 +63,15 @@ function App() {
         <div className="flex flex-col min-h-screen">
             <Header isLoggedIn={isLoggedIn} userRole={userRole} />
             <main className="flex-grow">
-                <ChatbotBubble />
+                <ChatbotBubble isLoggedIn={isLoggedIn} userRole={userRole} />
                 <Routes>
                     <Route exact path="/" element={<Main isLoggedIn={isLoggedIn} userRole={userRole} />} />
                     <Route path="/components/inscription" element={<Inscription />} />
                     <Route path="/components/catUser" element={<CatUser />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password/:token" element={<ResetPassword/>} />
                     <Route path={`/${userRole}/Prestation`} element={<ProtectedRoute element={<ProprietairePrestation />} allowedRole="proprietaire" />} />
                     <Route path={`/${userRole}/Reservation`} element={<ProtectedRoute element={userRole === 'proprietaire' ? <ProprietaireReservation /> : <PrestataireReservation />} allowedRole={userRole} />} />
                     <Route path="/components/dashboard/voyageur" element={<ProtectedRoute element={<VoyageurDashboard />} allowedRole="voyageur" />} />
@@ -85,7 +91,7 @@ function App() {
                     <Route path="/payment" element={<PaymentPage />} />
                     <Route path={`/${userRole}/Docs`} element={<Docs />}  />
                     <Route path="/error400" element={<Error400 />} />
-                    <Route path="*" element={<Error400 />} />
+                    
                 </Routes>
             </main> 
             <footer className="bg-pcs-200 dark:bg-gray-900 relative bottom-0">

@@ -5,6 +5,8 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use App\Repository\CheckVoyageurRepository;
+use App\Entity\DemandeReservation;
 
 #[ORM\Entity(repositoryClass: 'App\Repository\CheckVoyageurRepository')]
 class CheckVoyageur
@@ -15,10 +17,10 @@ class CheckVoyageur
     #[Groups(['check:read', 'check:write'])]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: ReservationVoyageur::class)]
+    #[ORM\ManyToOne(targetEntity: DemandeReservation::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['check:read', 'check:write'])]
-    private ?ReservationVoyageur $reservation = null;
+    private ?DemandeReservation $demandeReservation = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     #[Groups(['check:read', 'check:write'])]
@@ -67,6 +69,18 @@ class CheckVoyageur
     public function setCheckOut(?\DateTimeInterface $checkOut): self
     {
         $this->checkOut = $checkOut;
+
+        return $this;
+    }
+
+    public function getDemandeReservation(): ?DemandeReservation
+    {
+        return $this->demandeReservation;
+    }
+
+    public function setDemandeReservation(?DemandeReservation $demandeReservation): self
+    {
+        $this->demandeReservation = $demandeReservation;
 
         return $this;
     }

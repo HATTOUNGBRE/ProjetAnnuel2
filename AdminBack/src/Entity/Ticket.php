@@ -7,142 +7,110 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Utils\ReservationNumberGenerator;
 use App\Repository\TicketRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
+use DateTime;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\TicketRepository")
+ * @ORM\Entity(repositoryClass=TicketRepository::class)
+ * @ORM\HasLifecycleCallbacks()
  */
-#[ORM\Entity(repositoryClass: TicketRepository::class)]
 class Ticket
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
     private $id;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['ticket:read', 'ticket:write'])]
-    private $name;
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class)
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $user;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['ticket:read', 'ticket:write'])]
-    private $surname;
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"ticket:read", "ticket:write"})
+     */
+    private $title;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['ticket:read', 'ticket:write'])]
-    private $email;
+    /**
+     * @ORM\Column(type="text")
+     * @Groups({"ticket:read", "ticket:write"})
+     */
+    private $description;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['ticket:read', 'ticket:write'])]
-    private $role;
-
-    #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['ticket:read', 'ticket:write'])]
-    private $question;
-
-    #[ORM\Column(type: 'text')]
-    #[Groups(['ticket:read', 'ticket:write'])]
-    private $message;
-
-    #[ORM\Column(type: 'datetime')]
-    #[Groups(['ticket:read'])]
-    private $createdAt;
-
-    #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['ticket:read', 'ticket:write'])]
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"ticket:read", "ticket:write"})
+     */
     private $status;
 
-    #[ORM\Column(type: 'string', length: 255, unique: true)]
-    #[Groups(['ticket:read'])]
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"ticket:read", "ticket:write"})
+     */
+    private $priority;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Groups({"ticket:read"})
+     */
+    private $createdAt;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Groups({"ticket:read"})
+     */
+    private $updatedAt;
+
+    /**
+     * @ORM\Column(type="string", length=255, unique=true)
+     * @Groups({"ticket:read"})
+     */
     private $ticketNumber;
 
-    // Getters and Setters...
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"ticket:read", "ticket:write"})
+     */
+    private $assignedTo;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getUser(): ?User
     {
-        return $this->name;
+        return $this->user;
     }
 
-    public function setName(string $name): self
+    public function setUser(?User $user): self
     {
-        $this->name = $name;
-
+        $this->user = $user;
         return $this;
     }
 
-    public function getSurname(): ?string
+    public function getTitle(): ?string
     {
-        return $this->surname;
+        return $this->title;
     }
 
-    public function setSurname(string $surname): self
+    public function setTitle(string $title): self
     {
-        $this->surname = $surname;
-
+        $this->title = $title;
         return $this;
     }
 
-    public function getEmail(): ?string
+    public function getDescription(): ?string
     {
-        return $this->email;
+        return $this->description;
     }
 
-    public function setEmail(string $email): self
+    public function setDescription(string $description): self
     {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function getRole(): ?string
-    {
-        return $this->role;
-    }
-
-    public function setRole(string $role): self
-    {
-        $this->role = $role;
-
-        return $this;
-    }
-
-    public function getQuestion(): ?string
-    {
-        return $this->question;
-    }
-
-    public function setQuestion(string $question): self
-    {
-        $this->question = $question;
-
-        return $this;
-    }
-
-    public function getMessage(): ?string
-    {
-        return $this->message;
-    }
-
-    public function setMessage(string $message): self
-    {
-        $this->message = $message;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
+        $this->description = $description;
         return $this;
     }
 
@@ -154,7 +122,39 @@ class Ticket
     public function setStatus(string $status): self
     {
         $this->status = $status;
+        return $this;
+    }
 
+    public function getPriority(): ?string
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(string $priority): self
+    {
+        $this->priority = $priority;
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 
@@ -166,17 +166,35 @@ class Ticket
     public function setTicketNumber(string $ticketNumber): self
     {
         $this->ticketNumber = $ticketNumber;
-
         return $this;
     }
 
-
-
-    public function __construct()
+    public function getAssignedTo(): ?string
     {
-        $this->createdAt = new \DateTime();
-        $this->status = 'Ouvert';
+        return $this->assignedTo;
+    }
+
+    public function setAssignedTo(string $assignedTo): self
+    {
+        $this->assignedTo = $assignedTo;
+        return $this;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function prePersist()
+    {
+        $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
         $this->ticketNumber = ReservationNumberGenerator::generate();
     }
 
+    /**
+     * @ORM\PreUpdate
+     */
+    public function preUpdate()
+    {
+        $this->updatedAt = new DateTime();
+    }
 }

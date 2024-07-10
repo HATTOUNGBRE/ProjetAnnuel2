@@ -1,5 +1,6 @@
 easy_admin:
     entities:
+    
         Prestataire:
             class: App\Entity\Prestataire
             label: 'Prestataires'

@@ -24,16 +24,19 @@ function Contact() {
         'Comment réserver une propriété ?',
         'Quelles sont les modalités de paiement ?',
         'Comment annuler une réservation ?',
+        'Autre question ?'
       ],
       proprietaire: [
         'Comment ajouter une nouvelle propriété ?',
         'Comment gérer mes réservations ?',
         'Quelles sont les commissions applicables ?',
+        'Autre question ?',
       ],
       prestataire: [
         'Comment proposer mes services ?',
         'Quelles sont les conditions pour être prestataire ?',
         'Comment suivre mes missions ?',
+        'Autre question ?',
       ],
     };
 
@@ -141,7 +144,7 @@ function Contact() {
               placeholder="Nom"
               value={formData.name}
               onChange={handleInputChange}
-              className="border-2 border-gray-300 p-3 mb-4 rounded-lg"
+              className="border-2 border-gray-300 p-3 mb-4 rounded-lg text-black"
               required
             />
             <input
@@ -150,7 +153,7 @@ function Contact() {
               placeholder="Prénom"
               value={formData.surname}
               onChange={handleInputChange}
-              className="border-2 border-gray-300 p-3 mb-4 rounded-lg"
+              className="border-2 border-gray-300 p-3 mb-4 rounded-lg text-black"
               required
             />
             <input
@@ -159,12 +162,12 @@ function Contact() {
               placeholder="Email"
               value={formData.email}
               onChange={handleInputChange}
-              className="border-2 border-gray-300 p-3 mb-4 rounded-lg"
+              className="border-2 border-gray-300 p-3 mb-4 rounded-lg text-black"
               required
             />
             <select
               name="role"
-              className="border-2 border-gray-300 p-3 mb-4 rounded-lg"
+              className="border-2 border-gray-300 p-3 mb-4 rounded-lg text-black"
               value={role}
               onChange={handleRoleChange}
               required
@@ -177,7 +180,7 @@ function Contact() {
             {questions.length > 0 && (
               <select
                 name="question"
-                className="border-2 border-gray-300 p-3 mb-4 rounded-lg"
+                className="border-2 border-gray-300 p-3 mb-4 rounded-lg text-black"
                 value={selectedQuestion}
                 onChange={handleQuestionChange}
                 required
@@ -193,7 +196,7 @@ function Contact() {
               placeholder="Message"
               value={formData.message}
               onChange={handleInputChange}
-              className="border-2 border-gray-300 p-3 mb-4 rounded-lg h-32"
+              className="border-2 border-gray-300 p-3 mb-4 rounded-lg h-32 text-black"
               required
             />
             <button

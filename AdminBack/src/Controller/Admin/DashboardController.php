@@ -7,6 +7,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
 
@@ -28,7 +29,7 @@ use App\Entity\User;
 use App\Entity\DemandeReservation;
 use App\Entity\HistoriqueReservation;
 use App\Entity\Payment;
-use App\Entity\Ticket;
+use App\Entity\Tickets;
 
 class DashboardController extends AbstractDashboardController
 {
@@ -147,8 +148,9 @@ class DashboardController extends AbstractDashboardController
 
     yield MenuItem::section('Tickets');
     yield MenuItem::subMenu('Actions', 'fas fa-bars')->setSubItems([
-       
-        MenuItem::linkToCrud('Show Tickets', 'fas fa-eye', Ticket::class)
+        MenuItem::linkToCrud('Create Ticket', 'fas fa-plus', Tickets::class)->setAction
+        (Crud::PAGE_NEW),
+        MenuItem::linkToCrud('Show Tickets', 'fas fa-eye', Tickets::class)
     ]);
     
 

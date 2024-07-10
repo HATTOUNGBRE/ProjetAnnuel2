@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaComments, FaTimes } from 'react-icons/fa';
 
-const ChatbotBubble = () => {
+const ChatbotBubble = ({ isLoggedIn, userRole }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
@@ -28,22 +28,49 @@ const ChatbotBubble = () => {
 
         if (lowerInput.includes('bonjour') || lowerInput.includes('salut')) {
             response = 'Bonjour ! Comment puis-je vous aider aujourd\'hui ?';
-            options = ['Ajouter une propriété', 'Voir les propriétés', 'S\'inscrire'];
-        } else if (lowerInput.includes('propriété')) {
-            response = 'Souhaitez-vous ajouter ou voir des propriétés ?';
-            options = ['Ajouter une propriété', 'Voir les propriétés'];
+            options = ['S\'inscrire', 'Se connecter', 'Contacter le support'];
+
+            if (isLoggedIn) {
+                if (userRole === 'proprietaire') {
+                    options.push('Ajouter une propriété', 'Voir les réservations');
+                } else if (userRole === 'voyageur' || userRole === 'prestataire') {
+                    options.push('Voir les réservations');
+                }
+            }
         } else if (lowerInput.includes('ajouter une propriété')) {
-            response = 'Vous pouvez ajouter une propriété en allant sur la page Ajouter une propriété.';
-            window.location.href = '/add-property'; // Ajustez le chemin selon vos besoins
-        } else if (lowerInput.includes('voir les propriétés')) {
-            response = 'Vous pouvez voir les propriétés en allant sur la page Propriétés.';
-            window.location.href = '/properties'; // Ajustez le chemin selon vos besoins
+            if (isLoggedIn && userRole === 'proprietaire') {
+                response = 'Vous pouvez ajouter une propriété en allant sur la page Ajouter une propriété.';
+                window.location.href = '/add-property';
+            } else {
+                response = 'Cette option est réservée aux propriétaires connectés.';
+            }
+        } else if (lowerInput.includes('voir les réservations')) {
+            if (isLoggedIn) {
+                response = 'Vous pouvez voir vos réservations en allant sur la page Réservations.';
+                window.location.href = `/${userRole}/Reservation`;
+            } else {
+                response = 'Vous devez être connecté pour voir vos réservations.';
+            }
         } else if (lowerInput.includes('s\'inscrire')) {
             response = 'Vous pouvez vous inscrire en allant sur la page Inscription.';
-            window.location.href = '/register'; // Ajustez le chemin selon vos besoins
+            window.location.href = '/components/inscription';
+        } else if (lowerInput.includes('se connecter')) {
+            response = 'Vous pouvez vous connecter en allant sur la page de connexion.';
+            window.location.href = '/components/catUser';
+        } else if (lowerInput.includes('contacter le support')) {
+            response = 'Vous pouvez contacter le support en allant sur la page de contact.';
+            window.location.href = '/contact';
         } else {
             response = 'Désolé, je n\'ai pas compris. Pouvez-vous reformuler ?';
-            options = ['Ajouter une propriété', 'Voir les propriétés', 'S\'inscrire'];
+            options = ['S\'inscrire', 'Se connecter', 'Contacter le support'];
+
+            if (isLoggedIn) {
+                if (userRole === 'proprietaire') {
+                    options.push('Ajouter une propriété', 'Voir les réservations');
+                } else if (userRole === 'voyageur' || userRole === 'prestataire') {
+                    options.push('Voir les réservations');
+                }
+            }
         }
 
         setMessages(prevMessages => [...prevMessages, { text: response, isUser: false, options }]);

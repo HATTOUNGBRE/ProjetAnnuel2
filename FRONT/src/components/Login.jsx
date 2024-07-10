@@ -110,20 +110,14 @@ const Login = () => {
                     </div>
 
                     <div>
-                        <p> Mot de passe oublié ? </p>
                         <button
                             type="submit"
                             className="w-full px-4 mb-4 py-2 text-sm font-medium text-white bg-pcs-300 border border-transparent rounded-md shadow-sm hover:bg-pcs-400"
                         >
                             Se connecter
                         </button>
-                        <Link to="/components/catUser">
-                            <button
-                                type="button"
-                                className="w-full px-4 py-2 text-sm font-medium text-white bg-pcs-300 border border-transparent rounded-md shadow-sm hover:bg-pcs-400"
-                            >
-                                OOPS
-                            </button>
+                        <Link to="/reset-password" className="text-sm text-pcs-300 hover:underline">
+                            Mot de passe oublié ?
                         </Link>
                     </div>
                 </form>

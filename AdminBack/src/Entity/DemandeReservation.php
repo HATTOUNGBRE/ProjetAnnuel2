@@ -6,13 +6,14 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Utils\ReservationNumberGenerator;
 use App\Repository\DemandeReservationRepository;
+use App\Entity\HistoriqueReservation;
+use App\Entity\Property;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: 'App\Repository\DemandeReservationRepository')]
 class DemandeReservation
 {
-
-
-  #[ORM\Id]
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['demande:read'])]
@@ -22,8 +23,13 @@ class DemandeReservation
     #[Groups(['demande:read', 'demande:write'])]
     private ?\DateTimeInterface $dateArrivee = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['demande:read', 'demande:write'])]
+    private ?User $voyageur = null;
+
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['demande:read', 'demande:write'])]    
+    #[Groups(['demande:read', 'demande:write'])]
     private ?\DateTimeInterface $dateDepart = null;
 
     #[ORM\ManyToOne(inversedBy: 'demandes')]
@@ -51,7 +57,6 @@ class DemandeReservation
     #[Groups(['demande:read', 'demande:write'])]
     private ?int $voyageurId = null;
 
-
     #[ORM\Column(type: Types::FLOAT)]
     #[Groups(['demande:read', 'demande:write'])]
     private ?float $totalPrice = null;
@@ -63,9 +68,7 @@ class DemandeReservation
     #[ORM\OneToMany(targetEntity: HistoriqueReservation::class, mappedBy: 'demandeReservation', cascade: ['persist', 'remove'])]
     private $historiques;
 
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -75,18 +78,10 @@ class DemandeReservation
     #[Groups(['demande:read', 'demande:write', 'historique:read', 'historique:write', 'property:read', 'property:write'])]
     private ?string $reservationNumber = null;
 
-    // Add a getter and setter for reservationNumber
-    public function getReservationNumber(): ?string
+    public function __construct()
     {
-        return $this->reservationNumber;
+        $this->reservationNumber = ReservationNumberGenerator::generate();
     }
-
-    public function setReservationNumber(string $reservationNumber): self
-    {
-        $this->reservationNumber = $reservationNumber;
-        return $this;
-    }
-   
 
     public function getId(): ?int
     {
@@ -101,7 +96,6 @@ class DemandeReservation
     public function setDateArrivee(\DateTimeInterface $dateArrivee): static
     {
         $this->dateArrivee = $dateArrivee;
-
         return $this;
     }
 
@@ -113,7 +107,6 @@ class DemandeReservation
     public function setDateDepart(\DateTimeInterface $dateDepart): static
     {
         $this->dateDepart = $dateDepart;
-
         return $this;
     }
 
@@ -125,7 +118,6 @@ class DemandeReservation
     public function setProperty(?Property $property): static
     {
         $this->property = $property;
-
         return $this;
     }
 
@@ -137,7 +129,17 @@ class DemandeReservation
     public function setGuestNb(int $guestNb): static
     {
         $this->guestNb = $guestNb;
+        return $this;
+    }
 
+    public function getVoyageur(): ?User
+    {
+        return $this->voyageur;
+    }
+
+    public function setVoyageur(?User $voyageur): self
+    {
+        $this->voyageur = $voyageur;
         return $this;
     }
 
@@ -193,7 +195,6 @@ class DemandeReservation
     public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -205,7 +206,6 @@ class DemandeReservation
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
-
         return $this;
     }
 
@@ -250,11 +250,4 @@ class DemandeReservation
         $this->active = $active;
         return $this;
     }
-
-    public function __construct()
-    {
-        $this->reservationNumber = ReservationNumberGenerator::generate();
-    }
-
-
 }
