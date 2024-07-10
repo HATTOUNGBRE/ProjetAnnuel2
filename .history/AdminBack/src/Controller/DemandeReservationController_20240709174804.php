@@ -19,9 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use App\Utils\ReservationNumberGenerator;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
-
 
 class DemandeReservationController extends AbstractController
 {
