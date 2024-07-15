@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Entity\User;
@@ -13,21 +14,22 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use App\Service\PasswordResetService;
 
-class LoginUserController extends AbstractController
+class LoginController extends AbstractController
 {
     private $entityManager;
     private $passwordHasher;
     private $logger;
     private $mailer;
+    private $router;
 
-    public function __construct(EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, LoggerInterface $logger, MailerInterface $mailer)
+    public function __construct(EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, LoggerInterface $logger, MailerInterface $mailer, UrlGeneratorInterface $router)
     {
         $this->entityManager = $entityManager;
         $this->passwordHasher = $passwordHasher;
         $this->logger = $logger;
         $this->mailer = $mailer;
+        $this->router = $router;
     }
 
     #[Route('/api/login', name: 'login', methods: ['POST'])]
@@ -95,16 +97,50 @@ class LoginUserController extends AbstractController
         ], Response::HTTP_OK);
     }
 
-    #[Route("/api/forgot-password", name:"forgot_password", methods:["POST"])]
+    #[Route('/api/forgot-password', name: 'forgot_password', methods: ['POST'])]
     public function forgotPassword(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $email = $data['email'];
 
-        if ($this->passwordResetService->sendResetEmail($email)) {
-            return new JsonResponse(['message' => 'Email sent'], 200);
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+        if (!$user) {
+            return new JsonResponse(['message' => 'Error sending email'], 400);
         }
 
-        return new JsonResponse(['message' => 'Error sending email'], 400);
+        $resetToken = bin2hex(random_bytes(32));
+        $user->setResetToken($resetToken);
+        $this->entityManager->flush();
+
+        $resetUrl = $this->router->generate('reset_password', ['token' => $resetToken], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        $emailMessage = (new Email())
+            ->from('hello.equipepcs@gmail.com')
+            ->to($user->getEmail())
+            ->subject('Password Reset Request')
+            ->text("Click the following link to reset your password: $resetUrl");
+
+        $this->mailer->send($emailMessage);
+
+        return new JsonResponse(['message' => 'Email sent'], 200);
+    }
+
+    #[Route('/api/reset-password/{token}', name: 'reset_password', methods: ['POST'])]
+    public function resetPassword(string $token, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $newPassword = $data['password'];
+
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['resetToken' => $token]);
+        if (!$user) {
+            return new JsonResponse(['message' => 'Error resetting password'], 400);
+        }
+
+        $hashedPassword = $this->passwordHasher->hashPassword($user, $newPassword);
+        $user->setPassword($hashedPassword);
+        $user->setResetToken(null);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['message' => 'Password has been reset'], 200);
     }
 }

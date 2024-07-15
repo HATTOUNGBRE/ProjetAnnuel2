@@ -27,10 +27,10 @@ import Docs from "./components/dashboard/Docs";
 import ChatbotBubble from "./components/ChatbotBubble";
 import AboutUs from "./components/AboutUs";
 import StripeCheckoutForm from "./components/voyageur/StripeCheckoutForm";
-import { loadStripe } from '@stripe/stripe-js';
+//import PasswordResetRequestForm from "./components/resetpassword/PasswordResetRequestForm";
+//import PasswordResetForm from "./components/resetpassword/PasswordResetForm";
 import ForgotPassword from "./components/resetpassword/ForgotPassword";
 import ResetPassword from "./components/resetpassword/ResetPassword";
-
 
 const ProtectedRoute = ({ element, allowedRole }) => {
     const { isLoggedIn, userRole, loading , email} = useContext(AuthContext);
@@ -90,8 +90,6 @@ function App() {
                     <Route path="/payment" element={<PaymentPage />} />
                     <Route path={`/${userRole}/Docs`} element={<Docs />}  />
                     <Route path="/error400" element={<Error400 />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/reset-password/:token" element={<ResetPassword />} />
                     
                 </Routes>
             </main> 

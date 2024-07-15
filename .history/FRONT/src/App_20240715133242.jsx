@@ -90,8 +90,6 @@ function App() {
                     <Route path="/payment" element={<PaymentPage />} />
                     <Route path={`/${userRole}/Docs`} element={<Docs />}  />
                     <Route path="/error400" element={<Error400 />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/reset-password/:token" element={<ResetPassword />} />
                     
                 </Routes>
             </main> 
