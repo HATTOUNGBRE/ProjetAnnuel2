@@ -116,7 +116,7 @@ const Login = () => {
                         >
                             Se connecter
                         </button>
-                        <Link to="/forgot-password" className="text-sm text-pcs-300 hover:underline">
+                        <Link to="/reset-password" className="text-sm text-pcs-300 hover:underline">
                             Mot de passe oublié ?
                         </Link>
                     </div>
