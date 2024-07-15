@@ -102,10 +102,9 @@ function Main() {
         )}
       </div>
 
-      {/* Barre de recherche */}
-      {!isLoggedIn || userRole === 'voyageur' ? (
+
         <SearchForm handleSearch={handleSearch} searchTerm={searchTerm} setSearchTerm={setSearchTerm} maxPersons={maxPersons} setMaxPersons={setMaxPersons} />
-      ) : null}
+     
 
       {/* Résultats de la recherche */}
       <div className="mt-10 w-full">

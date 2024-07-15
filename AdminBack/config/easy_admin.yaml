@@ -1,9 +1,9 @@
-# config/packages/easy_admin.yaml
 easy_admin:
     entities:
+    
         Prestataire:
             class: App\Entity\Prestataire
-            controller: App\Controller\Admin\PrestataireCrudController
+            label: 'Prestataires'
             list:
                 fields:
                     - id
@@ -17,11 +17,10 @@ easy_admin:
                     - tarif
                     - verified
                     - { property: 'user', type: 'association', label: 'User' }
-                    # config/packages/easy_admin.yaml
 
-   
         Property:
             class: App\Entity\Property
+            label: 'Properties'
             list:
                 fields:
                     - { property: 'id', label: 'ID' }
@@ -30,7 +29,7 @@ easy_admin:
                     - { property: 'price', label: 'Price' }
                     - { property: 'category', label: 'Category' }
                     - { property: 'proprio', label: 'Owner' }
-                    - { property: 'createdAt', label: 'Created At' }
+                    - { property: 'createdAt', label: 'Created At', type: 'datetime' }
                     - { property: 'image', label: 'Image', template: '@EasyAdmin/default/field_image.html.twig', base_path: '/uploads/property_photos' }
             form:
                 fields:
@@ -40,5 +39,4 @@ easy_admin:
                     - { property: 'category', label: 'Category' }
                     - { property: 'proprio', label: 'Owner' }
                     - { property: 'image', label: 'Image', type: 'vich_image' }
-                    - { property: 'createdAt', label: 'Created At' }
-
+                    - { property: 'createdAt', label: 'Created At', type: 'datetime' }

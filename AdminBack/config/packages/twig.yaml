@@ -1,6 +1,7 @@
+# config/packages/twig.yaml
 twig:
-    file_name_pattern: '*.twig'
-
-when@test:
-    twig:
-        strict_variables: true
+    default_path: '%kernel.project_dir%/templates'
+    date:
+        format: 'Y-m-d H:i:s'
+        interval_format: '%d days'
+        timezone: Europe/Paris

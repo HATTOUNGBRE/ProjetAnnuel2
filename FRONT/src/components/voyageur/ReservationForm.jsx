@@ -3,9 +3,10 @@ import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../AuthContext';
 import ReactModal from 'react-modal';
 
+
 const ReservationForm = () => {
   const { id } = useParams();
-  const { isLoggedIn, userRole, userId, userName, userSurname } = useContext(AuthContext);
+  const { isLoggedIn, userRole, userId, userName, userSurname, email } = useContext(AuthContext);
   const [property, setProperty] = useState(null);
   const [dateArrivee, setDateArrivee] = useState('');
   const [dateDepart, setDateDepart] = useState('');
@@ -19,6 +20,7 @@ const ReservationForm = () => {
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [isDateUnavailable, setIsDateUnavailable] = useState(false);
   const [unavailabilityMessage, setUnavailabilityMessage] = useState('');
+  
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -26,6 +28,8 @@ const ReservationForm = () => {
     const fetchProperty = async () => {
       const searchParams = new URLSearchParams(location.search);
       const propertyId = searchParams.get('id');
+      console.log('AuthContext values:', { isLoggedIn, userRole, userId, userName, userSurname, email });
+  
 
       if (!propertyId) {
         setError('No property ID provided');
@@ -59,13 +63,27 @@ const ReservationForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!isLoggedIn || userRole !== 'voyageur') {
       setShowModal(true);
       return;
     }
 
+    const currentDate = new Date();
+    const yesterday = new Date(currentDate.setDate(currentDate.getDate() - 1));
+
+    if (new Date(dateArrivee) < yesterday || new Date(dateDepart) < yesterday) {
+      setError('Les dates ne peuvent pas être antérieures à aujourd\'hui');
+      return;
+    }
+
     if (new Date(dateArrivee) >= new Date(dateDepart)) {
       setError('La date d\'arrivée doit être avant la date de départ');
+      return;
+    }
+
+    if (guestNb > property.maxPersons) {
+      setError(`Le nombre de personnes ne peut pas dépasser la capacité maximale de ${property.maxPersons}`);
       return;
     }
 
@@ -81,31 +99,39 @@ const ReservationForm = () => {
 
   const handleConfirmReservation = async () => {
     try {
+      const reservationData = {
+        dateArrivee,
+        dateDepart,
+        guestNb,
+        property: property.id,
+        name: userName,
+        surname: userSurname,
+        email: email,
+        voyageurId: userId,
+        totalPrice,
+      };
+  
+      console.log('Sending reservation data:', reservationData); // Add this line
+  
       const response = await fetch(`http://localhost:8000/api/demandes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          dateArrivee,
-          dateDepart,
-          guestNb,
-          property: property.id,
-          name: userName,
-          surname: userSurname,
-          voyageurId: userId,
-          totalPrice,
-        }),
+        body: JSON.stringify(reservationData),
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to create reservation');
+        console.log('response:', response);
       }
-
+  
       const data = await response.json();
       setSuccess('Reservation successfully created');
       setError('');
       console.log('Reservation created:', data);
+  
+      // Use navigate to pass state to payment page
       navigate('/payment', { state: { totalPrice } });
     } catch (error) {
       console.error('Error creating reservation:', error);
@@ -125,6 +151,14 @@ const ReservationForm = () => {
   };
 
   const checkAvailability = (startDate, endDate) => {
+    const currentDate = new Date();
+    if (new Date(startDate) < currentDate || new Date(endDate) < currentDate) {
+      setError('Les dates ne peuvent pas être antérieures à aujourd\'hui');
+      setIsDateUnavailable(true);
+      setUnavailabilityMessage('');
+      return;
+    }
+
     if (new Date(startDate) >= new Date(endDate)) {
       setError('La date d\'arrivée doit être avant la date de départ');
       setIsDateUnavailable(true);
@@ -162,7 +196,7 @@ const ReservationForm = () => {
   return (
     <div className="container mx-auto p-10">
       <h2 className="text-2xl font-semibold mb-4">Réserver {property.name}</h2>
-      <img src={`http://localhost:8000/uploads/property_photos/${property.image}`} alt={property.name} className="h-48 w-full object-cover mb-4" />
+      <img src={`http://localhost:8000/uploads/property_photos/${property.image || 'default_appart.jpg'}`} alt={property.name} className="h-48 w-full object-cover mb-4" />
       <p className="text-gray-600 mb-4">{property.description}</p>
       <p className="text-gray-600 mb-4">Commune: {property.commune}</p>
       <p className="text-gray-600 mb-4">Prix: {property.price} €/jour</p>
@@ -220,19 +254,24 @@ const ReservationForm = () => {
           </div>
         </ReactModal>
       )}
-      {showConfirmationModal && (
-        <ReactModal isOpen={showConfirmationModal} onRequestClose={() => setShowConfirmationModal(false)} className="Modal" overlayClassName="Overlay">
-          <h2 className="text-2xl font-semibold mb-4">Confirmer la réservation</h2>
-          <p className="mb-4">Date d'arrivée: {dateArrivee}</p>
-          <p className="mb-4">Date de départ: {dateDepart}</p>
-          <p className="mb-4">Nombre de personnes: {guestNb}</p>
-          <p className="mb-4">Prix total: {totalPrice} €</p>
-          <div className="flex justify-around">
-            <button onClick={handleConfirmReservation} className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Réserver</button>
-            <button onClick={() => setShowConfirmationModal(false)} className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Modifier</button>
-          </div>
-        </ReactModal>
-      )}
+     {showConfirmationModal && (
+  <ReactModal isOpen={showConfirmationModal} onRequestClose={() => setShowConfirmationModal(false)} className="Modal" overlayClassName="Overlay">
+    {console.log('totalPrice:', totalPrice)}
+    <h2 className="text-2xl font-semibold mb-4">Confirmer la réservation</h2>
+    <p className="mb-4">Date d'arrivée: {dateArrivee}</p>
+    <p className="mb-4">Date de départ: {dateDepart}</p>
+    <p className="mb-4">Nombre de personnes: {guestNb}</p>
+    <p className="mb-4">Prix total: {totalPrice} €</p>
+    <div className="flex justify-around">
+      <button onClick={handleConfirmReservation} className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">
+        Confirmer et Payer
+      </button>
+      <button onClick={() => setShowConfirmationModal(false)} className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Modifier</button>
+    </div>
+  </ReactModal>
+)}
+
+
     </div>
   );
 };

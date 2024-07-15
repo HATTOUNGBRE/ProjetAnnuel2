@@ -11,16 +11,18 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 use Psr\Log\LoggerInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\Ticket;
-use App\Utils\ReservationNumberGenerator;
+use App\Entity\Tickets;
+use App\Utils\TicketNumberGenerator;
 
 class ContactController extends AbstractController
 {
     private $entityManager;
+    private $ticketNumberGenerator;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, TicketNumberGenerator $ticketNumberGenerator)
     {
         $this->entityManager = $entityManager;
+        $this->ticketNumberGenerator = $ticketNumberGenerator;
     }
 
     #[Route('/api/contact', name: 'contact', methods: ['POST'])]
@@ -32,15 +34,14 @@ class ContactController extends AbstractController
             return new JsonResponse(['message' => 'Invalid JSON'], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $ticket = new Ticket();
-        $ticket->setName($data['name']);
-        $ticket->setSurname($data['surname']);
-        $ticket->setEmail($data['email']);
-        $ticket->setRole($data['role']);
+        $ticket = new Tickets();
         $ticket->setQuestion($data['question']);
-        $ticket->setStatus('Ouvert');
         $ticket->setMessage($data['message']);
-        $ticket->setTicketNumber(ReservationNumberGenerator::generate());
+        $ticket->setStatus(Tickets::STATUS_NEW);
+        $ticket->setPriority($data['priority'] ?? Tickets::PRIORITY_MEDIUM);
+        $ticket->setCreatedAt(new \DateTime());
+        $ticket->setTicketNumber($this->ticketNumberGenerator->generate());
+        $ticket->setAssignedTo($data['assigned_to'] ?? null); // Assurez-vous que 'assigned_to' est fourni dans le JSON
 
         $this->entityManager->persist($ticket);
         $this->entityManager->flush();
@@ -62,7 +63,7 @@ class ContactController extends AbstractController
             ->from('hello.teampcs@outlook.com')
             ->to('hello.teampcs@outlook.com')
             ->subject('Nouvelle demande de contact')
-            ->text("Vous avez reçu une nouvelle demande de contact.\n\nNom: {$data['name']}\nPrénom: {$data['surname']}\nEmail: {$data['email']}\nRôle: {$data['role']}\nQuestion: {$data['question']}\nMessage: {$data['message']}\nNuméro de ticket : {$ticket->getTicketNumber()}");
+            ->text("Vous avez reçu une nouvelle demande de contact.\n\nTitre: {$data['question']}\nmessage: {$data['message']}\nNuméro de ticket : {$ticket->getTicketNumber()}");
 
         $mailer->send($supportEmail);
 

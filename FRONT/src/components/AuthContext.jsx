@@ -9,8 +9,9 @@ export const AuthProvider = ({ children }) => {
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState('');
   const [userSurname, setUserSurname] = useState('');
+  const [email, setEmail] = useState('');
   const [category, setCategoryUserId] = useState(null);
-  const [loading, setLoading] = useState(true); // New state for loading
+  const [loading, setLoading] = useState(true);
 
   const fetchUserDetails = async (userId) => {
     try {
@@ -22,20 +23,24 @@ export const AuthProvider = ({ children }) => {
         setUserId(data.id);
         setUserName(data.name);
         setUserSurname(data.surname);
+        setEmail(data.email);
         setCategoryUserId(data.category_user);
-        setUserRole(Cookies.get('role')); // Ensure the role is set from the cookie
+        setUserRole(Cookies.get('role'));
+        console.log('User details fetched:', data); // Add this line
       } else {
         setIsLoggedIn(false);
         setUserId(null);
         setUserName('');
         setUserSurname('');
+        setEmail('');
         setCategoryUserId(null);
         setUserRole('');
+        console.log('Failed to fetch user details. Response:', response); // Add this line
       }
     } catch (error) {
       console.error('Error fetching user details:', error);
     } finally {
-      setLoading(false); // Set loading to false once user details are fetched
+      setLoading(false);
     }
   };
 
@@ -47,18 +52,19 @@ export const AuthProvider = ({ children }) => {
     if (token && storedUserId) {
       setIsLoggedIn(true);
       setUserRole(storedUserRole || '');
-      fetchUserDetails(storedUserId); // Fetch user details
+      fetchUserDetails(storedUserId);
     } else {
-      setLoading(false); // Set loading to false if no token or userId is found
+      setLoading(false);
     }
   }, []);
 
-  const login = (token, role, userId, userName, userSurname, category) => {
+  const login = (token, role, userId, userName, userSurname, email, category) => {
     Cookies.set('authToken', token, { expires: 1 });
     Cookies.set('role', role, { expires: 1 });
     Cookies.set('userId', userId, { expires: 1 });
     Cookies.set('userName', userName, { expires: 1 });
     Cookies.set('userSurname', userSurname, { expires: 1 });
+    Cookies.set('email', email, { expires: 1 });
     Cookies.set('category', category, { expires: 1 });
 
     setIsLoggedIn(true);
@@ -66,8 +72,10 @@ export const AuthProvider = ({ children }) => {
     setUserId(userId);
     setUserName(userName);
     setUserSurname(userSurname);
+    setEmail(email);
     setCategoryUserId(category);
-    setLoading(false); // Set loading to false after login
+    setLoading(false);
+    console.log('User logged in:', { userId, userName, userSurname, email }); // Add this line
   };
 
   const logout = () => {
@@ -76,6 +84,7 @@ export const AuthProvider = ({ children }) => {
     Cookies.remove('userId');
     Cookies.remove('userName');
     Cookies.remove('userSurname');
+    Cookies.remove('email');
     Cookies.remove('category');
 
     setIsLoggedIn(false);
@@ -83,12 +92,14 @@ export const AuthProvider = ({ children }) => {
     setUserId(null);
     setUserName('');
     setUserSurname('');
+    setEmail('');
     setCategoryUserId(null);
-    setLoading(false); // Set loading to false after logout
+    setLoading(false);
+    console.log('User logged out'); // Add this line
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, userRole, userId, userName, userSurname, category, login, logout, fetchUserDetails, loading }}>
+    <AuthContext.Provider value={{ isLoggedIn, userRole, userId, userName, userSurname, email, category, login, logout, fetchUserDetails, loading }}>
       {children}
     </AuthContext.Provider>
   );

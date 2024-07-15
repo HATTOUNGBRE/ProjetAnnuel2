@@ -1,8 +1,8 @@
 parameters:
-  profile_photos_directory: "/public/uploads/profile_photos"
-  profile_photos_web_path: "/uploads/profile_photos"
-  property_photos_directory: '/public/uploads/property_photos'
-  property_photos_web_path: '/uploads/property_photos'
+  profile_photos_directory: "uploads/profile_photos"
+  profile_photos_web_path: "./uploads/profile_photos"
+  property_photos_directory: './uploads/property_photos'
+  property_photos_web_path: './uploads/property_photos'
   frontend_upload_directory: '../../FRONT/public/uploads/property_photos'
   stripe_secret_key: '%env(STRIPE_SECRET_KEY)%'
 

@@ -88,13 +88,49 @@ const VoyageurDashboard = () => {
         if (window.confirm('Are you sure you want to cancel this reservation?')) {
             try {
                 await fetch(`http://localhost:8000/api/demandes/${demandeId}/cancel`, {
-                    method: 'PUT',
+                    method: 'POST',
                 });
                 setDemandes(demandes.filter(dem => dem.id !== demandeId));
                 setHistorique(historique.map(hist => (hist.id === demandeId ? { ...hist, status: 'Annulée' } : hist)));
             } catch (error) {
                 console.error('Error cancelling reservation:', error);
             }
+        }
+    };
+
+    const handleCheckIn = async (demandeId) => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/checkin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ demandeId: demandeId }),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
+    
+            setDemandes(demandes.map(dem => (dem.id === demandeId ? { ...dem, status: 'Checked-in' } : dem)));
+        } catch (error) {
+            console.error('Error during check-in:', error);
+        }
+    };
+    
+
+    const handleCheckOut = async (demandeId) => {
+        try {
+            await fetch(`http://localhost:8000/api/checkout`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reservationId: demandeId }),
+            });
+            setDemandes(demandes.map(dem => (dem.id === demandeId ? { ...dem, status: 'Checked-out' } : dem)));
+        } catch (error) {
+            console.error('Error during check-out:', error);
         }
     };
 
@@ -141,25 +177,61 @@ const VoyageurDashboard = () => {
                 <h1 className="text-3xl font-semibold text-gray-800">Dashboard Voyageur</h1>
                 <div className="mt-6">
                     <h2 className="text-xl font-semibold text-gray-800">Suivi des demandes de réservations</h2>
-                    <div className="mt-4 dmd_active ">
+                    <div className="mt-4">
                         {demandes.length === 0 ? (
                             <p className="text-gray-600">Aucune demande de réservation en cours.</p>
                         ) : (
-                            <ul>
-                                {demandes.map((demande) => (
-                                    <li key={demande.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
-                                        <h3 className="text-2xl font-semibold text-pcs-400">Votre identifiant de réservation: {demande.reservationNumber}</h3>
-                                        <h2 className="text-xl font-semibold">Logement: {demande.property.name}</h2>
-                                        <p>Date d'arrivée: {new Date(demande.dateArrivee).toLocaleDateString()}</p>
-                                        <p>Date de départ: {new Date(demande.dateDepart).toLocaleDateString()}</p>
-                                        <p>Nombre de personnes: {demande.guestNb}</p>
-                                        <p>Prix total: {demande.totalPrice} €</p>
-                                        <p>Statut: {getStatus(demande)}</p>
-                                        <button onClick={() => handleEditClick(demande)} className="bg-blue-500 text-white py-1 px-3 rounded mt-2">Modifier</button>
-                                        <button onClick={() => handleCancelClick(demande.id)} className="bg-red-500 text-white py-1 px-3 rounded mt-2 ml-2">Annuler</button>
-                                    </li>
-                                ))}
-                            </ul>
+                            <table className="min-w-full bg-white">
+                                <thead>
+                                    <tr>
+                                        <th className="py-2 text-center">Identifiant de réservation</th>
+                                        <th className="py-2 text-center">Logement</th>
+                                        <th className="py-2 text-center">Date d'arrivée</th>
+                                        <th className="py-2 text-center">Date de départ</th>
+                                        <th className="py-2 text-center">Nombre de personnes</th>
+                                        <th className="py-2 text-center">Prix total</th>
+                                        <th className="py-2 text-center">Statut</th>
+                                        <th className="py-2 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {demandes.map((demande) => (
+                                        <tr key={demande.id}>
+                                            <td className="py-2 text-center">{demande.reservationNumber}</td>
+                                            <td className="py-2 text-center">{demande.property.name}</td>
+                                            <td className="py-2 text-center">{new Date(demande.dateArrivee).toLocaleDateString()}</td>
+                                            <td className="py-2 text-center">{new Date(demande.dateDepart).toLocaleDateString()}</td>
+                                            <td className="py-2 text-center">{demande.guestNb}</td>
+                                            <td className="py-2 text-center">{demande.totalPrice} €</td>
+                                            <td className="py-2 text-center">{getStatus(demande)}</td>
+                                            <td className="py-2 text-center">
+                                                <button
+                                                    onClick={() => handleEditClick(demande)}
+                                                    className={`py-1 px-3 rounded mt-2 mr-2 ${demande.status === 'Acceptée' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-500 text-white'}`}
+                                                    disabled={demande.status === 'Acceptée'|| demande.status === 'Annulée' || demande.status === 'Checked-in' || demande.status === 'Checked-out'}
+                                                >
+                                                    Modifier
+                                                </button>
+                                                <button onClick={() => handleCancelClick(demande.id)} className="bg-red-500 text-white py-1 px-3 rounded mt-2 mr-2">Annuler</button>
+                                                <button
+                                                    onClick={() => handleCheckIn(demande.id)}
+                                                    className={`py-1 px-3 rounded mt-2 mr-2 ${new Date().toLocaleDateString() === new Date(demande.dateArrivee).toLocaleDateString() ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}
+                                                    disabled={new Date().toLocaleDateString() !== new Date(demande.dateArrivee).toLocaleDateString()}
+                                                >
+                                                    Check-in
+                                                </button>
+                                                <button
+                                                    onClick={() => handleCheckOut(demande.id)}
+                                                    className='py-1 px-3 rounded mt-2  bg-yellow-500 text-white'
+                                                    disabled={demande.status !== 'Checked-in' || demande.status === 'Checked-out' }
+                                                >
+                                                    Check-out
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         )}
                     </div>
                 </div>
@@ -191,20 +263,20 @@ const VoyageurDashboard = () => {
                     <h2 className="text-2xl font-semibold mb-4">Modifier la réservation</h2>
                     <label className="block text-gray-700 font-bold mb-2">
                         Date d'arrivée:
-                        <input type="date" value={dateArrivee} onChange={(e) => setDateArrivee(e.target.value)} required className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <input type="date" value={dateArrivee} onChange={(e) => setDateArrivee(e.target.value)} required className="w-full px-4 py-2 text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     </label>
                     <label className="block text-gray-700 font-bold mb-2">
                         Date de départ:
-                        <input type="date" value={dateDepart} onChange={(e) => setDateDepart(e.target.value)} required className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <input type="date" value={dateDepart} onChange={(e) => setDateDepart(e.target.value)} required className="w-full px-4 py-2 text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     </label>
                     <label className="block text-gray-700 font-bold mb-2">
                         Nombre de personnes:
-                        <input type="number" value={guestNb} onChange={(e) => setGuestNb(e.target.value)} required min="1" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <input type="number" value={guestNb} onChange={(e) => setGuestNb(e.target.value)} required min="1" className="w-full px-4 py-2 text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     </label>
                     {error && <div className="text-red-500">{error}</div>}
                     <div className="flex justify-around mt-4">
-                        <button onClick={handleUpdate} className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Modifier</button>
-                        <button onClick={() => setShowModal(false)} className="bg-pcs-400 text-white py-2 px-4 rounded-lg hover:bg-pcs-500">Annuler</button>
+                        <button onClick={handleUpdate} className="bg-pcs-400 text-white py-2 text-center px-4 rounded-lg hover:bg-pcs-500">Modifier</button>
+                        <button onClick={() => setShowModal(false)} className="bg-pcs-400 text-white py-2 text-center px-4 rounded-lg hover:bg-pcs-500">Annuler</button>
                     </div>
                 </ReactModal>
             )}
